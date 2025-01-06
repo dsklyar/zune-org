@@ -27,7 +27,6 @@ class MainMenu extends StatelessWidget {
               'albums',
               'artists',
               'playlists',
-              'custom',
             ],
           ),
           MenuItem(

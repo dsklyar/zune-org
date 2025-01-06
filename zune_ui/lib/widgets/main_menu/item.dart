@@ -71,8 +71,8 @@ class MenuItem extends StatelessWidget {
               ...subTextItems.mapIndexed(
                 (index, subText) => Padding(
                   padding: index == 0
-                      ? const EdgeInsets.only(left: 16 + 32 + 16 + 10)
-                      : const EdgeInsets.only(left: 2),
+                      ? const EdgeInsets.only(left: 16 + 32 + 16)
+                      : const EdgeInsets.only(left: 4),
                   child: Text(
                     subText.toUpperCase(),
                     style: Styles.subItem,

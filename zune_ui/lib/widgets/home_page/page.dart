@@ -194,6 +194,10 @@ class _AminatedHomePageState extends State<AnimatedHomePage>
     return widgetList;
   }
 
+  Widget generateView(BuildContext context) {
+    return const MainMenu();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -202,9 +206,10 @@ class _AminatedHomePageState extends State<AnimatedHomePage>
       child: AnimatedBuilder(
         animation: _controller,
         builder: (context, child) {
-          return Stack(
-            children: generateStack(context),
-          );
+          // return Stack(
+          //   children: generateStack(context),
+          // );
+          return generateView(context);
         },
       ),
     );
