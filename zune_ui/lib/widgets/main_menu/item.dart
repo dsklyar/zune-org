@@ -1,7 +1,4 @@
-import 'package:flutter/widgets.dart';
-import 'package:collection/collection.dart';
-import '../effects/index.dart';
-import './styles.dart';
+part of main_menu;
 
 Widget circle = Container(
   margin: const EdgeInsets.only(left: 16, right: 16),
@@ -66,20 +63,21 @@ class MenuItem extends StatelessWidget {
               ),
             ],
           ),
-          Row(
-            children: [
-              ...subTextItems.mapIndexed(
-                (index, subText) => Padding(
-                  padding: index == 0
-                      ? const EdgeInsets.only(left: 16 + 32 + 16)
-                      : const EdgeInsets.only(left: 4),
-                  child: Text(
-                    subText.toUpperCase(),
-                    style: Styles.subItem,
-                  ),
-                ),
-              )
-            ],
+          Container(
+            margin: const EdgeInsets.only(left: 16 + 32 + 16 + 4),
+            child: Row(
+              children: subTextItems
+                  .map(
+                    (subText) => Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        subText.toUpperCase(),
+                        style: Styles.subItem,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ],
       ),
