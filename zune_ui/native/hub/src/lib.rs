@@ -31,20 +31,10 @@ async fn main() {
         audio_player_for_change_volume,
     ));
 
-    let audio_player_for_fill_monitoring = Arc::clone(&audio_player);
-
-    // Spawn the fill queue method as an async task
+    // Helper thread for syncing queue/seek information with dart
+    let audio_player_monitoring = Arc::clone(&audio_player);
     tokio::spawn(async move {
-        if let Err(e) = audio_player_for_fill_monitoring.fill().await {
-            eprintln!("Error in fill loop: {}", e);
-        }
-    });
-
-    let audio_player_for_seek_monitoring = Arc::clone(&audio_player);
-
-    // Spawn the notify_of_seek method as an async task
-    tokio::spawn(async move {
-        if let Err(e) = audio_player_for_seek_monitoring.notify_of_seek().await {
+        if let Err(e) = audio_player_monitoring.helper_thread().await {
             eprintln!("Error in notify_of_seek loop: {}", e);
         }
     });

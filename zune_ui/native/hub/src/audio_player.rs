@@ -44,11 +44,24 @@ impl AudioPlayer {
         Ok(())
     }
 
-    pub async fn fill(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    pub async fn helper_thread(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         loop {
             let sink_empty = self.sink.lock().unwrap().empty();
+            let sink_is_paused = self.sink.lock().unwrap().is_paused();
             let queue_len = self.queue.lock().unwrap().len();
 
+            // Block responsible for updating the song seek position
+            if !sink_empty && !sink_is_paused {
+                let sink_pos = self.sink.lock().unwrap().get_pos();
+                // println!("RUST-> Sink position {}", sink_pos.as_secs());
+                // TODO: Dangerous cast here
+                SeekChange {
+                    current_seek_value: sink_pos.as_secs() as i32,
+                }
+                .send_signal_to_dart();
+            }
+
+            //Block responsible for filling the sink stream queue if the collection queue is not empty
             if sink_empty && queue_len > 0 {
                 {
                     let mut index = self.current_index.lock().unwrap();
@@ -60,7 +73,7 @@ impl AudioPlayer {
                         *index = 0;
                     }
                     // TODO: Dangerous cast here
-                    println!("RUST-> Sending QUEUECHANGE Event to Dart {}", *index);
+                    // println!("RUST-> Sending QUEUECHANGE Event to Dart {}", *index);
                     QueueChange {
                         current_rust_index: *index as i32,
                     }
@@ -70,25 +83,6 @@ impl AudioPlayer {
             }
 
             time::sleep(std::time::Duration::from_millis(500)).await; // Non-blocking sleep
-        }
-    }
-
-    pub async fn notify_of_seek(&self) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        loop {
-            let sink_empty = self.sink.lock().unwrap().empty();
-            let sink_is_paused = self.sink.lock().unwrap().is_paused();
-
-            if !sink_empty && !sink_is_paused {
-                let sink_pos = self.sink.lock().unwrap().get_pos();
-                // println!("RUST-> Sink position {}", sink_pos.as_secs());
-                // TODO: Dangerous cast here
-                SeekChange {
-                    current_seek_value: sink_pos.as_secs() as i32,
-                }
-                .send_signal_to_dart();
-            }
-
-            time::sleep(std::time::Duration::from_millis(900)).await; // Non-blocking sleep
         }
     }
 

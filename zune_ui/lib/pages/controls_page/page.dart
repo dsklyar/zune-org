@@ -63,7 +63,7 @@ class _ControlsPageState extends State<ControlsPage>
   ActiveControlEnum isActive = ActiveControlEnum.none;
 
   final Debouncer _autoCloseDebouncer = Debouncer(
-    duration: const Duration(seconds: 2),
+    duration: const Duration(seconds: 1),
     // debugName: "auto-close",
     logger: console,
   );

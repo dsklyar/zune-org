@@ -32,17 +32,16 @@ class PlayerPage extends StatefulWidget {
 }
 
 class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final OverlayPortalController _overlayController;
+  late final AnimationController _overlayAnimationController;
 
-  double _offset = 0.0; // Track the offset of AlbumTile
+  late final OverlayPortalController _overlayController;
 
   @override
   void initState() {
     super.initState();
     _overlayController = OverlayPortalController();
 
-    _controller = AnimationController(
+    _overlayAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
     );
@@ -50,7 +49,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _overlayAnimationController.dispose();
     super.dispose();
   }
 
@@ -68,48 +67,19 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
       _overlayController.hide();
       return;
     }
-    if (_controller.isAnimating) {
-      _controller.reset();
+    if (_overlayAnimationController.isAnimating) {
+      _overlayAnimationController.reset();
     } else {
-      _controller.forward().then((_) {
+      _overlayAnimationController.forward().then((_) {
         _overlayController.hide();
-        _controller.reset();
+        _overlayAnimationController.reset();
       });
     }
   }
 
-  void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    setState(() {
-      final temp = _offset + details.delta.dx;
-
-      // TODO: fix magical numbers for width
-      if (temp < 272 && temp > -272) {
-        _offset += details.delta.dx;
-      }
-    });
-  }
-
-  void _onHorizontalDragEnd(DragEndDetails details) {
-    final globalState = context.read<GlobalModalState>();
-
-    // TODO: Fix magical numbers
-    if (_offset > (272 / 2)) {
-      console.log("User swiped right, playing previous song");
-      globalState.playNextPrevSong(-1);
-    } else if (_offset < -(272 / 2)) {
-      console.log("User swiped left, playing next song");
-      globalState.playNextPrevSong(1);
-    }
-
-    // Reset offset
-    setState(() {
-      _offset = 0.0;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: widget.size.width,
       height: widget.isDebug ? widget.size.height - 30 : widget.size.height,
       child: Stack(
@@ -120,7 +90,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
               return FadeTransition(
                 opacity: Tween<double>(begin: 1, end: 0).animate(
                   CurvedAnimation(
-                    parent: _controller,
+                    parent: _overlayAnimationController,
                     curve: Curves.linear,
                   ),
                 ),
@@ -130,99 +100,87 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
               );
             },
           ),
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (context, child) => Consumer<GlobalModalState>(
-              builder: (context, state, child) {
-                if (state.currentlyPlaying == null) {
-                  return SizedBox.shrink();
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const ReturnButton(),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, top: 32),
+          Consumer<GlobalModalState>(
+            builder: (context, state, child) {
+              if (state.currentlyPlaying == null) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const ReturnButton(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8, top: 32),
+                    child: Column(
+                      // Make artist/album title align from left side
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.currentlyPlaying!.album.artist_name
+                              .toUpperCase(),
+                          style: Styles.albumArtist,
+                          overflow: TextOverflow.visible,
+                          softWrap: false,
+                        ),
+                        Text(
+                          state.currentlyPlaying!.album.album_name
+                              .toUpperCase(),
+                          style: Styles.albumTitle,
+                          overflow: TextOverflow.visible,
+                          softWrap: false,
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
                       child: Column(
-                        // Make artist/album title align from left side
+                        // Make song title align from left side
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            state.currentlyPlaying!.album.artist_name
-                                .toUpperCase(),
-                            style: Styles.albumArtist,
-                            overflow: TextOverflow.visible,
-                            softWrap: false,
+                          CurrentTrackTile(
+                            showOverlay: showOverlay,
                           ),
-                          Text(
-                            state.currentlyPlaying!.album.album_name
-                                .toUpperCase(),
-                            style: Styles.albumTitle,
-                            overflow: TextOverflow.visible,
-                            softWrap: false,
-                          )
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              state.currentlyPlaying!.song.name,
+                              style: Styles.songTitle,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              left: 40,
+                            ),
+                            child: Consumer<GlobalModalState>(
+                              builder: (context, state, child) {
+                                final songs = state.getNext3Songs();
+                                if (songs.isEmpty) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: state
+                                        .getNext3Songs()
+                                        .map((e) => Text(
+                                              e.name,
+                                              style: Styles.listItem,
+                                            ))
+                                        .toList());
+                              },
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onHorizontalDragUpdate: _onHorizontalDragUpdate,
-                          onHorizontalDragEnd: _onHorizontalDragEnd,
-                          onHorizontalDragCancel: () => setState(() {
-                            _offset = 0.0;
-                          }),
-                          child: Column(
-                            // Make song title align from left side
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CurrentTrackTile(
-                                showOverlay: showOverlay,
-                                offset: _offset,
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4),
-                                child: Text(
-                                  state.currentlyPlaying!.song.name,
-                                  style: Styles.songTitle,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  top: 8,
-                                  left: 40,
-                                ),
-                                child: Consumer<GlobalModalState>(
-                                  builder: (context, state, child) {
-                                    final songs = state.getNext3Songs();
-                                    if (songs.isEmpty) {
-                                      return const SizedBox.shrink();
-                                    }
-                                    return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: state
-                                            .getNext3Songs()
-                                            .map((e) => Text(
-                                                  e.name,
-                                                  style: Styles.listItem,
-                                                ))
-                                            .toList());
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const TrackActionsControls(),
-                  ],
-                );
-              },
-            ),
+                  ),
+                  const TrackActionsControls(),
+                ],
+              );
+            },
           ),
         ],
       ),

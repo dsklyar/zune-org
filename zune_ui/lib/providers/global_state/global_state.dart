@@ -17,7 +17,7 @@ class GlobalModalState extends ChangeNotifier {
   bool _isPlaying = false;
   bool get isPlaying => _isPlaying;
 
-  int _volumeLevel = 10;
+  int _volumeLevel = 0;
   int get volumeLevel => _volumeLevel;
 
   List<AlbumModel> _newlyAddedItems = [];
