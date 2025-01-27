@@ -1,0 +1,17 @@
+syntax = "proto3";
+package audio;
+
+// [DART-SIGNAL]
+message PlayPauseTrackAtPath { repeated string paths = 1; string action = 2; }
+// [DART-SIGNAL]
+message VolumeChange { float value = 1; float max = 2; }
+
+// [RUST-SIGNAL]
+message QueueChange {
+  int32 current_rust_index = 1;
+}
+
+// [RUST-SIGNAL]
+message SeekChange {
+  int32 current_seek_value = 1;
+}

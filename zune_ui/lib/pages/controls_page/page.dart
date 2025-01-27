@@ -1,0 +1,508 @@
+library controls_page;
+
+import 'dart:math';
+
+import 'package:flutter/material.dart' show Icon, Icons;
+import 'package:flutter/widgets.dart';
+import 'package:provider/provider.dart';
+import 'package:zune_ui/messages/all.dart';
+import 'package:zune_ui/providers/global_state/global_state.dart';
+import 'package:zune_ui/widgets/common/index.dart';
+import 'package:zune_ui/widgets/custom/debug_print.dart';
+import 'package:zune_ui/widgets/custom/time_utils.dart';
+import 'package:zune_ui/widgets/fade_animation_wrapper/index.dart';
+import 'package:zune_ui/widgets/slide_in_animation_wrapper/index.dart';
+
+part "volume_label.dart";
+part "font_styles.dart";
+part "backdrop.dart";
+part "currently_playing_label.dart";
+part "volume_control.dart";
+part "playback_control.dart";
+part "play_pause_control.dart";
+
+final console = DebugPrint().register(DebugComponent.controlsPage);
+
+class ControlsPage extends StatefulWidget {
+  final void Function({bool? fastClose}) closeOverlayHandler;
+
+  const ControlsPage({
+    super.key,
+    required this.closeOverlayHandler,
+  });
+
+  @override
+  State<ControlsPage> createState() => _ControlsPageState();
+}
+
+enum ActiveControlEnum {
+  rewind,
+  volumeUp,
+  fastForward,
+  volumeDown,
+  playPause,
+  none,
+}
+
+class _ControlsPageState extends State<ControlsPage>
+    with TickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  /// Property responsible for tracking if Overlay
+  /// is animating its closing state effect
+  bool _isOverlayPortalAnimatingCloseEffect = false;
+
+  /// Property responsible for tracking how many pixels user moved
+  /// across the y-axis when fine tuning volume level.
+  /// It is used for enabling dead zone between delta Y change and volume increment
+  double _yAxisDeltaAccumulator = 0;
+
+  double xRotation = 0; // Rotation around X-axis
+  double yRotation = 0; // Rotation around Y-axis
+
+  ActiveControlEnum isActive = ActiveControlEnum.none;
+
+  final Debouncer _autoCloseDebouncer = Debouncer(
+    duration: const Duration(seconds: 2),
+    // debugName: "auto-close",
+    logger: console,
+  );
+  final Debouncer _longPressDebouncer = Debouncer(
+    duration: const Duration(milliseconds: 500),
+    logger: console,
+    debugName: "long-press",
+  );
+  final Repeater _longPressRepeater = Repeater(
+    duration: const Duration(milliseconds: 100),
+    logger: console,
+    debugName: "long-press",
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+
+    _queueOverlayClosingEffect();
+  }
+
+  @override
+  void dispose() {
+    _autoCloseDebouncer.cancel();
+    _longPressDebouncer.cancel();
+    _longPressRepeater.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  /// Method responsible for queueing Overlay's closing effect
+  /// 1. If _isOverlayPortalAnimatingCloseEffect set to true,
+  ///    trigger closeOverlayHandler to cancel animation effect and set flag to false.
+  /// 2. Otherwise, debounce last closeOverlayHandler call to reset auto close effect
+  ///    and set flag to true to allow canceling of effect in 1st clause.
+  void _queueOverlayClosingEffect() {
+    if (_isOverlayPortalAnimatingCloseEffect) {
+      console.log("Cancelling Overlay closing effect");
+
+      widget.closeOverlayHandler();
+      _isOverlayPortalAnimatingCloseEffect = false;
+    }
+    {
+      _autoCloseDebouncer.call(() {
+        console.log("Closing Overlay effect running");
+        _isOverlayPortalAnimatingCloseEffect = true;
+        widget.closeOverlayHandler();
+      });
+    }
+  }
+
+  void _restoreTilt() {
+    _longPressDebouncer.cancel();
+    _longPressRepeater.cancel();
+    _controller.stop();
+
+    // Animate back to original position (0 degrees)
+    final Animation<double> animationX =
+        Tween<double>(begin: xRotation, end: 0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    final Animation<double> animationY =
+        Tween<double>(begin: yRotation, end: 0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    void listener() {
+      // console.log("Triggering Listener ${animationX.value} ${animationY.value}");
+      setState(() {
+        xRotation = animationX.value;
+        yRotation = animationY.value;
+      });
+    }
+
+    void statusListener(status) {
+      if (status == AnimationStatus.completed) {
+        if (isActive != ActiveControlEnum.none) {
+          isActive = ActiveControlEnum.none;
+        }
+        // console.log("Unmount of listeners");
+        _controller.removeListener(listener);
+        _controller.removeStatusListener(statusListener);
+        _controller.reset();
+      }
+    }
+
+    // Update the state during animation frames
+    _controller.addListener(listener);
+    // Reset the controller when done
+    _controller.addStatusListener(statusListener);
+
+    // console.log("Triggering Restore");
+
+    // Start the animation
+    _controller.forward();
+  }
+
+  void _updateRotation(DragUpdateDetails details, Size screenSize,
+      {List<({ActiveControlEnum control, GlobalKey key})> widgets = const []}) {
+    _queueOverlayClosingEffect();
+
+    // console.log("Previous in ${isActive}");
+
+    final perX = details.globalPosition.dx / screenSize.width;
+    final perY = details.globalPosition.dy / screenSize.height;
+    final topX = perX > .5 ? -1 : 1;
+    final topY = perY > .5 ? 1 : -1;
+
+    if (widgets.isNotEmpty) {
+      for (var widget in widgets) {
+        final renderBox =
+            widget.key.currentContext?.findRenderObject() as RenderBox?;
+
+        if (renderBox != null) {
+          // Get the global position of the widget
+          final widgetPosition = renderBox.localToGlobal(Offset.zero);
+          final widgetSize = renderBox.size;
+
+          // Define the bounds of the widget
+          final Rect widgetBounds = Rect.fromLTWH(widgetPosition.dx,
+              widgetPosition.dy, widgetSize.width, widgetSize.height);
+
+          if (widgetBounds.contains(details.globalPosition)) {
+            console.log("Inbound in ${widget.control}");
+
+            setState(() {
+              switch (widget.control) {
+                case ActiveControlEnum.volumeDown:
+                case ActiveControlEnum.volumeUp:
+                  {
+                    if (isActive != widget.control) {
+                      _longPressRepeater.repeat(
+                          () => changeVolumeLevel(control: widget.control));
+                    }
+                  }
+                default:
+              }
+              isActive = widget.control;
+            });
+            return;
+          } else {
+            //
+            setState(() {
+              isActive = ActiveControlEnum.none;
+              _longPressRepeater.cancel();
+            });
+          }
+        }
+      }
+    }
+
+    setState(() {
+      isActive = ActiveControlEnum.none;
+      final double deltaY = details.delta.dy;
+      final double deltaX = details.delta.dx;
+      // Use delta change in the dx/dy direction times 0.2 for sensitivity
+      xRotation = xRotation + 0.2 * deltaY;
+      yRotation = yRotation + 0.2 * -deltaX;
+
+      /**
+       * |-q1-|-q2-|
+       * |-q3-|-q4-|
+       */
+
+      if (topY == -1) {
+        xRotation = xRotation.clamp(-15.0, 0);
+      } else {
+        xRotation = xRotation.clamp(0, 15.0);
+      }
+
+      if (topX == -1) {
+        yRotation = yRotation.clamp(-15.0, 0);
+      } else {
+        yRotation = yRotation.clamp(0, 15.0);
+      }
+
+      // This code is responsible for granular change of volume level when user pans on control pane
+      // Check absolute delta Y value is 1, meaning there was a vertical drag
+      // If change is over 70 steps long, perform volume change and reset the dead zone variable of _yAxisDeltaAccumulator
+      if (deltaY.abs() == 1 && deltaX.abs() == 0) {
+        //console.log("deltaY: ${details.delta.dy} acc: $_yAxisDeltaAccumulator");
+
+        if (_yAxisDeltaAccumulator.abs() > 70) {
+          _yAxisDeltaAccumulator = 0;
+
+          changeVolumeLevel(change: -deltaY.ceil());
+        }
+        _yAxisDeltaAccumulator += deltaY;
+      }
+    });
+  }
+
+  void _tiltOnTap(TapDownDetails details, Size screenSize,
+      {ActiveControlEnum? dir}) {
+    // console.log("Triggering ${dir ?? "parent"} event");
+    final perX = details.globalPosition.dx / screenSize.width;
+    final perY = details.globalPosition.dy / screenSize.height;
+    final topX = perX > .5 ? -1 : 1;
+    final topY = perY > .5 ? 1 : -1;
+    final deltaX = (perX - 0.5).abs();
+    final deltaY = (perY - 0.5).abs();
+    _queueOverlayClosingEffect();
+
+    setState(() {
+      if (dir != null) {
+        isActive = dir;
+      }
+      switch (dir) {
+        case ActiveControlEnum.fastForward:
+        case ActiveControlEnum.rewind:
+          {
+            yRotation = yRotation + 0.5 * 100 * topX;
+            changeSong(control: dir);
+          }
+        case ActiveControlEnum.volumeUp:
+        case ActiveControlEnum.volumeDown:
+          {
+            xRotation = xRotation + 0.5 * 100 * topY;
+            // Executes on tap volume change
+            changeVolumeLevel(control: dir);
+            // After delay specified above
+            // Executes repeater which increases volume with the same delta
+            // Cancelled when _restoreTilt is called on onTapUp event handler
+            _longPressDebouncer.call(
+              () => _longPressRepeater
+                  .repeat(() => changeVolumeLevel(control: dir)),
+            );
+          }
+        default:
+          {
+            xRotation = xRotation + deltaY * 100 * topY;
+            yRotation = yRotation + deltaX * 100 * topX;
+          }
+      }
+
+      xRotation = xRotation.clamp(-15.0, 15.0);
+      yRotation = yRotation.clamp(-10.0, 10.0);
+    });
+  }
+
+  void changeVolumeLevel({ActiveControlEnum? control, int? change}) {
+    final globalState = context.read<GlobalModalState>();
+    _queueOverlayClosingEffect();
+
+    if (change != null) {
+      globalState.changeVolumeLevel(change);
+      return;
+    }
+
+    switch (control) {
+      case ActiveControlEnum.volumeUp:
+      case ActiveControlEnum.volumeDown:
+        {
+          // console.log("CHanging Volume");
+          globalState.changeVolumeLevel(
+              control == ActiveControlEnum.volumeUp ? 1 : -1);
+          return;
+        }
+      default:
+        return;
+    }
+  }
+
+  void changeSong({ActiveControlEnum? control, int? change}) {
+    final globalState = context.read<GlobalModalState>();
+    _queueOverlayClosingEffect();
+
+    if (change != null) {
+      globalState.playNextPrevSong(change);
+      return;
+    }
+
+    switch (control) {
+      case ActiveControlEnum.rewind:
+      case ActiveControlEnum.fastForward:
+        {
+          globalState.playNextPrevSong(
+              control == ActiveControlEnum.fastForward ? 1 : -1);
+          return;
+        }
+      default:
+        return;
+    }
+  }
+
+  void playPauseSong() {
+    final globalState = context.read<GlobalModalState>();
+    _queueOverlayClosingEffect();
+
+    PlayPauseTrackAtPath(
+            action: globalState.isPlaying ? "pause_action" : "resume_action")
+        .sendSignalToRust();
+    globalState.updateIsPlaying(!globalState.isPlaying);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final GlobalKey upVolumeKey = GlobalKey();
+    final GlobalKey downVolumeKey = GlobalKey();
+    final GlobalKey rewindKey = GlobalKey();
+    final GlobalKey fastForwardKey = GlobalKey();
+    final GlobalKey playPauseKey = GlobalKey();
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) => GestureDetector(
+        onPanUpdate: (e) => _updateRotation(e, screenSize, widgets: [
+          (key: upVolumeKey, control: ActiveControlEnum.volumeUp),
+          (key: downVolumeKey, control: ActiveControlEnum.volumeDown),
+          (key: rewindKey, control: ActiveControlEnum.rewind),
+          (key: fastForwardKey, control: ActiveControlEnum.fastForward),
+          (key: playPauseKey, control: ActiveControlEnum.playPause),
+        ]),
+        onPanEnd: (e) => _restoreTilt(),
+        child: Stack(
+          children: [
+            GestureDetector(
+                onTapDown: (e) => _tiltOnTap(e, screenSize),
+                onTapUp: (e) => _restoreTilt(),
+                child: const Backdrop()),
+            const VolumeLabel(
+              topPosition: 40,
+              leftPosition: 0,
+            ),
+            GestureDetector(
+              // Account for container's padding when doing test detection
+              behavior: HitTestBehavior.translucent,
+              onTap: () => widget.closeOverlayHandler(fastClose: true),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                width: 64,
+                height: 64,
+                child: Text(
+                  "exit".toUpperCase(),
+                  style: Styles.exitLabel,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                // Align exit to left of the display
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 44,
+                  ),
+                  Expanded(
+                    child: Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.identity()
+                        ..setEntry(3, 2, 0.001)
+                        ..rotateX(xRotation * pi / 180)
+                        ..rotateY(yRotation * pi / 180),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            children: [
+                              VolumeControl(
+                                key: upVolumeKey,
+                                type: VolumeControlTypeEnum.up,
+                                onTapDown: (e, {key}) => _tiltOnTap(
+                                  e,
+                                  screenSize,
+                                  dir: ActiveControlEnum.volumeUp,
+                                ),
+                                onTapUp: (_) => _restoreTilt(),
+                                isActive:
+                                    ActiveControlEnum.volumeUp == isActive,
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              PlaybackControl(
+                                key: rewindKey,
+                                type: PlaybackControlTypeEnum.rewind,
+                                onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                    dir: ActiveControlEnum.rewind),
+                                onTapUp: (_) => _restoreTilt(),
+                                isActive: isActive == ActiveControlEnum.rewind,
+                              ),
+                              PlayPauseControl(
+                                key: playPauseKey,
+                                onTap: () => playPauseSong(),
+                                isActive:
+                                    isActive == ActiveControlEnum.playPause,
+                              ),
+                              PlaybackControl(
+                                key: fastForwardKey,
+                                type: PlaybackControlTypeEnum.fastForward,
+                                onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                    dir: ActiveControlEnum.fastForward),
+                                onTapUp: (_) => _restoreTilt(),
+                                isActive:
+                                    isActive == ActiveControlEnum.fastForward,
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              VolumeControl(
+                                key: downVolumeKey,
+                                hasVolumeLabel: true,
+                                type: VolumeControlTypeEnum.down,
+                                onTapDown: (e, {key}) => _tiltOnTap(
+                                  e,
+                                  screenSize,
+                                  dir: ActiveControlEnum.volumeDown,
+                                ),
+                                onTapUp: (_) => _restoreTilt(),
+                                isActive:
+                                    ActiveControlEnum.volumeDown == isActive,
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  // TODO: it needs to slide out during next song
+                  const CurrentlyPlayingLabel()
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

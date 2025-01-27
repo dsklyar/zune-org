@@ -7,9 +7,11 @@ import 'package:zune_ui/providers/scroll_state/scroll_state.dart';
 import 'package:zune_ui/pages/home_page/page.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rinf/rinf.dart';
+import './messages/all.dart';
 
 const initialSize = Size(272, 480);
-const isDebug = false;
+const isDebug = kDebugMode;
 
 final _router = GoRouter(
   routes: [
@@ -30,7 +32,8 @@ final _router = GoRouter(
   ],
 );
 
-void main() {
+void main() async {
+  await initializeRust(assignRustSignal);
   runApp(
     MultiProvider(
       providers: [

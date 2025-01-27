@@ -15,6 +15,11 @@ class TextStyles {
   );
 }
 
+class TileUtility {
+  static const double largeTileWidth = 160;
+  static const double regularTileWidth = 78;
+}
+
 class AlbumTile extends StatelessWidget {
   final AlbumModel album;
   final bool isPlayedCurrently;
@@ -28,7 +33,9 @@ class AlbumTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double size = isPlayedCurrently ? 160 : 78;
+    final double size = isPlayedCurrently
+        ? TileUtility.largeTileWidth
+        : TileUtility.regularTileWidth;
     final Uint8List? pathToAlbumCover = album.album_image;
     final TextStyle albumTextStyle = isPlayedCurrently
         ? TextStyles.currentlyPlayedTitle
@@ -47,6 +54,29 @@ class AlbumTile extends StatelessWidget {
         alignment: Alignment.bottomLeft,
         textStyle: albumTextStyle,
         background: pathToAlbumCover,
+      ),
+    );
+  }
+}
+
+class TrackTile extends StatelessWidget {
+  final SongModel track;
+  final void Function()? onTap;
+
+  const TrackTile({
+    super.key,
+    required this.track,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SquareTile(
+        size: TileUtility.largeTileWidth,
+        alignment: Alignment.bottomLeft,
+        background: track.image_blob,
       ),
     );
   }

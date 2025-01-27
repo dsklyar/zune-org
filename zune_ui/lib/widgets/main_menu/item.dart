@@ -1,18 +1,5 @@
 part of main_menu;
 
-Widget circle = Container(
-  margin: const EdgeInsets.only(left: 16, right: 16),
-  height: 32,
-  width: 32,
-  decoration: BoxDecoration(
-    shape: BoxShape.circle,
-    border: Border.all(
-      width: 2,
-      color: const Color.fromARGB(255, 255, 255, 255),
-    ),
-  ),
-);
-
 class MenuItem extends StatelessWidget {
   final String text;
   final List<String> subTextItems;
@@ -37,7 +24,16 @@ class MenuItem extends StatelessWidget {
             children: [
               if (hasIcon)
                 OnHover(
-                  builder: (isHovered) => circle,
+                  builder: (isHovered) => const CircleWidget(
+                    size: 36,
+                    borderWidth: 2,
+                    margin: EdgeInsets.only(left: 14, right: 14),
+                    child: Icon(
+                      Icons.play_arrow,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
                 ),
               OnHover(
                 builder: (isHovered) => Padding(
@@ -53,11 +49,13 @@ class MenuItem extends StatelessWidget {
                         if (isHovered)
                           const Shadow(
                             blurRadius: 10.0,
-                            color: Color.fromARGB(255, 255, 255, 255),
+                            color: Colors.white,
                             offset: Offset(1, 1),
                           ),
                       ],
                     ),
+                    overflow: TextOverflow.visible,
+                    softWrap: false,
                   ),
                 ),
               ),
@@ -73,6 +71,8 @@ class MenuItem extends StatelessWidget {
                       child: Text(
                         subText.toUpperCase(),
                         style: Styles.subItem,
+                        overflow: TextOverflow.visible,
+                        softWrap: false,
                       ),
                     ),
                   )

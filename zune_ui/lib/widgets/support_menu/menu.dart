@@ -39,7 +39,10 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "Pins",
                     items: state.pinnedItems,
-                    onClickHandler: state.updateCurrentlyPlaying,
+                    onClickHandler: (AlbumModel model) {
+                      state.updateCurrentlyPlaying(model);
+                      context.go("/playing");
+                    },
                   );
                 },
               ),
@@ -48,7 +51,10 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "History",
                     items: state.recentlyPlayedItems,
-                    onClickHandler: state.updateCurrentlyPlaying,
+                    onClickHandler: (AlbumModel model) {
+                      state.updateCurrentlyPlaying(model);
+                      context.go("/playing");
+                    },
                   );
                 },
               ),
@@ -57,7 +63,10 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "New",
                     items: state.newlyAddedItems,
-                    onClickHandler: state.updateCurrentlyPlaying,
+                    onClickHandler: (AlbumModel model) {
+                      state.updateCurrentlyPlaying(model);
+                      context.go("/playing");
+                    },
                     isLast: true,
                   );
                 },
