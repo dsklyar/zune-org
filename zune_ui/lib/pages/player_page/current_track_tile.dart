@@ -68,7 +68,7 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
       globalState.playNextPrevSong(1);
       _animateOffset(-272);
     } else {
-      // _animateOffset(0);
+      _animateOffset(0);
     }
   }
 

@@ -79,9 +79,13 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    /// NOTE: Very curious thing here:
+    ///       If I change this to SizedBox and remove decoration,
+    ///       the windows system will play notification sound when clicking on background of said box
+    return Container(
       width: widget.size.width,
       height: widget.isDebug ? widget.size.height - 30 : widget.size.height,
+      decoration: const BoxDecoration(color: Colors.translucent),
       child: Stack(
         children: [
           OverlayPortal(
@@ -91,7 +95,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
                 opacity: Tween<double>(begin: 1, end: 0).animate(
                   CurvedAnimation(
                     parent: _overlayAnimationController,
-                    curve: Curves.linear,
+                    curve: Curves.easeInExpo,
                   ),
                 ),
                 child: ControlsPage(

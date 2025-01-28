@@ -5,13 +5,13 @@ import 'dart:math';
 import 'package:flutter/material.dart' show Icon, Icons;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:zune_ui/database/index.dart';
 import 'package:zune_ui/messages/all.dart';
 import 'package:zune_ui/providers/global_state/global_state.dart';
 import 'package:zune_ui/widgets/common/index.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
 import 'package:zune_ui/widgets/custom/time_utils.dart';
 import 'package:zune_ui/widgets/fade_animation_wrapper/index.dart';
-import 'package:zune_ui/widgets/slide_in_animation_wrapper/index.dart';
 
 part "volume_label.dart";
 part "font_styles.dart";
@@ -20,6 +20,7 @@ part "currently_playing_label.dart";
 part "volume_control.dart";
 part "playback_control.dart";
 part "play_pause_control.dart";
+part "track_label_animation.dart";
 
 final console = DebugPrint().register(DebugComponent.controlsPage);
 
@@ -46,7 +47,7 @@ enum ActiveControlEnum {
 
 class _ControlsPageState extends State<ControlsPage>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
+  late final AnimationController _3dPlaneAnimationController;
 
   /// Property responsible for tracking if Overlay
   /// is animating its closing state effect
@@ -63,31 +64,56 @@ class _ControlsPageState extends State<ControlsPage>
   ActiveControlEnum isActive = ActiveControlEnum.none;
 
   final Debouncer _autoCloseDebouncer = Debouncer(
-    duration: const Duration(seconds: 1),
+    duration: const Duration(seconds: 2),
     // debugName: "auto-close",
     logger: console,
   );
   final Debouncer _longPressDebouncer = Debouncer(
     duration: const Duration(milliseconds: 500),
     logger: console,
-    debugName: "long-press",
+    // debugName: "long-press",
   );
   final Repeater _longPressRepeater = Repeater(
     duration: const Duration(milliseconds: 100),
     logger: console,
-    debugName: "long-press",
+    // debugName: "long-press",
   );
+
+  /// Properties responsible for performing animation during opening of
+  /// controls page. It is being driven by _expandAnimationController,
+  /// separate from the rest of the control's plane.
+  late final AnimationController _expandAnimationController;
+  late final Animation<double> _expandAnimationVolume;
+  late final Animation<double> _expandAnimationPrevNext;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    _3dPlaneAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-
+    _expandAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
     _queueOverlayClosingEffect();
+
+    /// Block responsible for animating controls on mount
+    _expandAnimationVolume = Tween<double>(begin: 100, end: 0).animate(
+      CurvedAnimation(
+        parent: _expandAnimationController,
+        curve: Curves.linear,
+      ),
+    );
+    _expandAnimationPrevNext = Tween<double>(begin: 50, end: 0).animate(
+      CurvedAnimation(
+        parent: _expandAnimationController,
+        curve: Curves.linear,
+      ),
+    );
+    _expandAnimationController.forward();
   }
 
   @override
@@ -95,7 +121,8 @@ class _ControlsPageState extends State<ControlsPage>
     _autoCloseDebouncer.cancel();
     _longPressDebouncer.cancel();
     _longPressRepeater.cancel();
-    _controller.dispose();
+    _expandAnimationController.dispose();
+    _3dPlaneAnimationController.dispose();
     super.dispose();
   }
 
@@ -123,18 +150,18 @@ class _ControlsPageState extends State<ControlsPage>
   void _restoreTilt() {
     _longPressDebouncer.cancel();
     _longPressRepeater.cancel();
-    _controller.stop();
+    _3dPlaneAnimationController.stop();
 
     // Animate back to original position (0 degrees)
     final Animation<double> animationX =
         Tween<double>(begin: xRotation, end: 0).animate(CurvedAnimation(
-      parent: _controller,
+      parent: _3dPlaneAnimationController,
       curve: Curves.easeInOut,
     ));
 
     final Animation<double> animationY =
         Tween<double>(begin: yRotation, end: 0).animate(CurvedAnimation(
-      parent: _controller,
+      parent: _3dPlaneAnimationController,
       curve: Curves.easeInOut,
     ));
 
@@ -152,21 +179,21 @@ class _ControlsPageState extends State<ControlsPage>
           isActive = ActiveControlEnum.none;
         }
         // console.log("Unmount of listeners");
-        _controller.removeListener(listener);
-        _controller.removeStatusListener(statusListener);
-        _controller.reset();
+        _3dPlaneAnimationController.removeListener(listener);
+        _3dPlaneAnimationController.removeStatusListener(statusListener);
+        _3dPlaneAnimationController.reset();
       }
     }
 
     // Update the state during animation frames
-    _controller.addListener(listener);
+    _3dPlaneAnimationController.addListener(listener);
     // Reset the controller when done
-    _controller.addStatusListener(statusListener);
+    _3dPlaneAnimationController.addStatusListener(statusListener);
 
     // console.log("Triggering Restore");
 
     // Start the animation
-    _controller.forward();
+    _3dPlaneAnimationController.forward();
   }
 
   void _updateRotation(DragUpdateDetails details, Size screenSize,
@@ -377,7 +404,13 @@ class _ControlsPageState extends State<ControlsPage>
     final GlobalKey playPauseKey = GlobalKey();
 
     return AnimatedBuilder(
-      animation: _controller,
+      /// NOTE: _expandAnimationController is used here instead of_3dPlaneAnimationController
+      ///       because it is the controllers that renders Transform.translate animation.
+      /// Another option is to merge controllers, but since the of_3dPlaneAnimationController
+      /// subscribers are only using it to derive values it is not necessary.
+      /// E.g
+      /// animation: Listenable.merge([_expandAnimationController, _3dPlaneAnimationController]),
+      animation: _expandAnimationController,
       builder: (context, child) => GestureDetector(
         onPanUpdate: (e) => _updateRotation(e, screenSize, widgets: [
           (key: upVolumeKey, control: ActiveControlEnum.volumeUp),
@@ -432,30 +465,41 @@ class _ControlsPageState extends State<ControlsPage>
                         children: [
                           Column(
                             children: [
-                              VolumeControl(
-                                key: upVolumeKey,
-                                type: VolumeControlTypeEnum.up,
-                                onTapDown: (e, {key}) => _tiltOnTap(
-                                  e,
-                                  screenSize,
-                                  dir: ActiveControlEnum.volumeUp,
+                              Transform.translate(
+                                offset: Offset(
+                                  0,
+                                  _expandAnimationVolume.value,
                                 ),
-                                onTapUp: (_) => _restoreTilt(),
-                                isActive:
-                                    ActiveControlEnum.volumeUp == isActive,
+                                child: VolumeControl(
+                                  key: upVolumeKey,
+                                  type: VolumeControlTypeEnum.up,
+                                  onTapDown: (e, {key}) => _tiltOnTap(
+                                    e,
+                                    screenSize,
+                                    dir: ActiveControlEnum.volumeUp,
+                                  ),
+                                  onTapUp: (_) => _restoreTilt(),
+                                  isActive:
+                                      ActiveControlEnum.volumeUp == isActive,
+                                ),
                               ),
                             ],
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              PlaybackControl(
-                                key: rewindKey,
-                                type: PlaybackControlTypeEnum.rewind,
-                                onTapDown: (e) => _tiltOnTap(e, screenSize,
-                                    dir: ActiveControlEnum.rewind),
-                                onTapUp: (_) => _restoreTilt(),
-                                isActive: isActive == ActiveControlEnum.rewind,
+                              Transform.translate(
+                                offset:
+                                    Offset(_expandAnimationPrevNext.value, 0),
+                                child: PlaybackControl(
+                                  key: rewindKey,
+                                  type: PlaybackControlTypeEnum.rewind,
+                                  onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                      dir: ActiveControlEnum.rewind),
+                                  onTapUp: (_) => _restoreTilt(),
+                                  isActive:
+                                      isActive == ActiveControlEnum.rewind,
+                                ),
                               ),
                               PlayPauseControl(
                                 key: playPauseKey,
@@ -463,31 +507,39 @@ class _ControlsPageState extends State<ControlsPage>
                                 isActive:
                                     isActive == ActiveControlEnum.playPause,
                               ),
-                              PlaybackControl(
-                                key: fastForwardKey,
-                                type: PlaybackControlTypeEnum.fastForward,
-                                onTapDown: (e) => _tiltOnTap(e, screenSize,
-                                    dir: ActiveControlEnum.fastForward),
-                                onTapUp: (_) => _restoreTilt(),
-                                isActive:
-                                    isActive == ActiveControlEnum.fastForward,
+                              Transform.translate(
+                                offset:
+                                    Offset(-_expandAnimationPrevNext.value, 0),
+                                child: PlaybackControl(
+                                  key: fastForwardKey,
+                                  type: PlaybackControlTypeEnum.fastForward,
+                                  onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                      dir: ActiveControlEnum.fastForward),
+                                  onTapUp: (_) => _restoreTilt(),
+                                  isActive:
+                                      isActive == ActiveControlEnum.fastForward,
+                                ),
                               ),
                             ],
                           ),
                           Column(
                             children: [
-                              VolumeControl(
-                                key: downVolumeKey,
-                                hasVolumeLabel: true,
-                                type: VolumeControlTypeEnum.down,
-                                onTapDown: (e, {key}) => _tiltOnTap(
-                                  e,
-                                  screenSize,
-                                  dir: ActiveControlEnum.volumeDown,
+                              Transform.translate(
+                                offset:
+                                    Offset(0, -_expandAnimationVolume.value),
+                                child: VolumeControl(
+                                  key: downVolumeKey,
+                                  hasVolumeLabel: true,
+                                  type: VolumeControlTypeEnum.down,
+                                  onTapDown: (e, {key}) => _tiltOnTap(
+                                    e,
+                                    screenSize,
+                                    dir: ActiveControlEnum.volumeDown,
+                                  ),
+                                  onTapUp: (_) => _restoreTilt(),
+                                  isActive:
+                                      ActiveControlEnum.volumeDown == isActive,
                                 ),
-                                onTapUp: (_) => _restoreTilt(),
-                                isActive:
-                                    ActiveControlEnum.volumeDown == isActive,
                               ),
                             ],
                           )
@@ -495,7 +547,6 @@ class _ControlsPageState extends State<ControlsPage>
                       ),
                     ),
                   ),
-                  // TODO: it needs to slide out during next song
                   const CurrentlyPlayingLabel()
                 ],
               ),

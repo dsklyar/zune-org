@@ -9,25 +9,29 @@ class CurrentlyPlayingLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: Consumer<GlobalModalState>(
-        builder: (context, state, child) => state.currentlyPlaying != null
+      child: Selector<GlobalModalState, ({SongModel? track, int delta})>(
+        selector: (context, state) => (
+          track: state.currentlyPlaying?.song,
+          delta: state.trackChangeDelta
+        ),
+        builder: (context, state, child) => state.track != null
             ? Column(
                 // Align currently playing to left of the display
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SlideInAnimationWrapper(
-                    offset: const Offset(1, 0.0),
+                  TrackLabelAnimation(
+                    forward: state.delta >= 0,
                     child: Text(
-                      state.currentlyPlaying!.album.artist_name.toUpperCase(),
+                      state.track!.artist_name!.toUpperCase(),
                       style: Styles.albumArtist,
                       overflow: TextOverflow.visible,
                       softWrap: false,
                     ),
                   ),
-                  SlideInAnimationWrapper(
-                    offset: const Offset(1, 0.0),
+                  TrackLabelAnimation(
+                    forward: state.delta >= 0,
                     child: Text(
-                      state.currentlyPlaying!.song.name,
+                      state.track!.name,
                       style: Styles.songTitle,
                       overflow: TextOverflow.visible,
                       softWrap: false,

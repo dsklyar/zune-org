@@ -14,6 +14,13 @@ class GlobalModalState extends ChangeNotifier {
   List<SongModel> _currentSongList = [];
   int _currentSongIndex = 0;
 
+  /// Property used to track the most recent choice between
+  /// previous and next track selection. Next track is marked as 1,
+  /// whereas next track is marked with -1. The 0 value stands as default and
+  /// is useful inside CurrentlyPlayingLabel widget to default to forward animation
+  int _trackChangeDelta = 0;
+  int get trackChangeDelta => _trackChangeDelta;
+
   bool _isPlaying = false;
   bool get isPlaying => _isPlaying;
 
@@ -36,6 +43,7 @@ class GlobalModalState extends ChangeNotifier {
   }
 
   Future<void> initializeStore() async {
+    // TODO: On intial load of DB and music this will error:
     _newlyAddedItems = (await AlbumModel.readAll()).slice(0, 8);
     VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
         .sendSignalToRust();
@@ -47,6 +55,9 @@ class GlobalModalState extends ChangeNotifier {
         album: _currentlyPlaying!.album,
         song: _currentSongList[_currentSongIndex]
       );
+
+      // Capture that Rust played next track in queue
+      _trackChangeDelta = 1;
       notifyListeners();
     });
     notifyListeners();
@@ -104,24 +115,21 @@ class GlobalModalState extends ChangeNotifier {
     if (kDebugMode) {
       print("SongChange Event: { delta: $delta prev: $_currentSongIndex}");
     }
-    if (_currentSongList.isNotEmpty && _currentlyPlaying != null) {
-      if (delta > 0) {
-        _currentSongIndex = _currentSongList.length - 1 < _currentSongIndex + 1
-            ? 0
-            : _currentSongIndex + 1;
-        PlayPauseTrackAtPath(action: "next_action").sendSignalToRust();
-      } else {
-        _currentSongIndex = _currentSongIndex - 1 < 0
-            ? _currentSongList.length - 1
-            : _currentSongIndex - 1;
-        PlayPauseTrackAtPath(action: "previous_action").sendSignalToRust();
-      }
+
+    final trackIndex = _getNextPrevTrackIndex(delta);
+    if (trackIndex != -1) {
+      _currentSongIndex = trackIndex;
+      PlayPauseTrackAtPath(
+              action: delta > 0 ? "next_action" : "previous_action")
+          .sendSignalToRust();
 
       _currentlyPlaying = (
         album: _currentlyPlaying!.album,
         song: _currentSongList[_currentSongIndex]
       );
       _isPlaying = true;
+      // Capture user selection of prev/next track selection
+      _trackChangeDelta = delta;
       notifyListeners();
     }
   }
@@ -161,5 +169,21 @@ class GlobalModalState extends ChangeNotifier {
       _currentSongList.slice(
           _currentSongIndex + 1, rem > 4 ? _currentSongIndex + 4 : absLen),
     );
+  }
+
+  int _getNextPrevTrackIndex(int delta) {
+    int nextPrevIndex = -1;
+    if (_currentSongList.isNotEmpty && _currentlyPlaying != null) {
+      if (delta > 0) {
+        nextPrevIndex = _currentSongList.length - 1 < _currentSongIndex + 1
+            ? 0
+            : _currentSongIndex + 1;
+      } else {
+        nextPrevIndex = _currentSongIndex - 1 < 0
+            ? _currentSongList.length - 1
+            : _currentSongIndex - 1;
+      }
+    }
+    return nextPrevIndex;
   }
 }
