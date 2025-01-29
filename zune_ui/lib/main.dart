@@ -78,17 +78,23 @@ class MyApp extends StatelessWidget {
       width: initialSize.width,
       height: initialSize.height,
       child: Stack(
+        alignment: Alignment.topCenter,
         children: [
           Expanded(
             child: WidgetsApp.router(
               debugShowCheckedModeBanner: false,
               routerConfig: _router,
               color: const Color.fromARGB(255, 0, 0, 0),
+              textStyle: const TextStyle(
+                // Classic Zune Font :)
+                fontFamily: 'Zegoe UI',
+              ),
             ),
           ),
           if (isDebug)
             Container(
-              color: const Color.fromARGB(153, 255, 188, 4),
+              width: 128,
+              color: const Color.fromARGB(25, 255, 249, 231),
               child: WindowTitleBarBox(child: MoveWindow()),
             ),
         ],

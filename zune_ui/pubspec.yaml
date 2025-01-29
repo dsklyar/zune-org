@@ -96,6 +96,19 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  fonts:
+  - family: Zegoe UI
+    fonts:
+      - asset: assets/fonts/Zegoe-UI-Bold.ttf
+        weight: 700
+      - asset: assets/fonts/Zegoe-UI-Semi-Bold.ttf
+        weight: 600
+      - asset: assets/fonts/Zegoe-UI-Regular.ttf
+        weight: 400
+      - asset: assets/fonts/Zegoe-UI-Light.ttf
+        weight: 300
+      - asset: assets/fonts/Zegoe-UI-Caps.ttf
+        weight: 400 # Assuming Caps is treated as Regular
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   assets:
