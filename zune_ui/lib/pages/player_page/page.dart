@@ -47,7 +47,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
     return Container(
       width: widget.size.width,
       height: widget.size.height,
-      decoration: const BoxDecoration(color: Colors.translucent),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Consumer<GlobalModalState>(
         builder: (context, state, child) {
           if (state.currentlyPlaying == null) {
