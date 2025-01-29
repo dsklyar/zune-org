@@ -18,7 +18,7 @@ class ReturnButton extends StatelessWidget {
             size: 44,
           ),
           cb: () {
-            context.go("/");
+            context.go(ApplicationRoute.home.route);
           }),
     );
   }

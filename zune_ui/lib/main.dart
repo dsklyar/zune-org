@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:zune_ui/pages/overlays_page/page.dart';
 import 'package:zune_ui/pages/player_page/page.dart';
 import 'package:zune_ui/providers/global_state/global_state.dart';
 import 'package:zune_ui/providers/scroll_state/scroll_state.dart';
@@ -8,6 +9,7 @@ import 'package:zune_ui/pages/home_page/page.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rinf/rinf.dart';
+import 'package:zune_ui/widgets/custom/route_utils.dart';
 import './messages/all.dart';
 
 const initialSize = Size(272, 480);
@@ -15,20 +17,27 @@ const isDebug = kDebugMode;
 
 final _router = GoRouter(
   routes: [
-    GoRoute(
-      path: '/',
-      builder: (context, state) => const HomePage(
+    ShellRoute(
+      /// NOTE: Adds a Overlays wrapper here to support all overlays
+      builder: (context, state, child) => OverlaysPage(
         size: initialSize,
-        isDebug: isDebug,
+        child: child,
       ),
-    ),
-    GoRoute(
-      path: '/playing',
-      builder: (context, state) => const PlayerPage(
-        size: initialSize,
-        isDebug: isDebug,
-      ),
-    ),
+      routes: [
+        GoRoute(
+          path: ApplicationRoute.home.route,
+          builder: (context, state) => const HomePage(
+            size: initialSize,
+          ),
+        ),
+        GoRoute(
+          path: ApplicationRoute.player.route,
+          builder: (context, state) => const PlayerPage(
+            size: initialSize,
+          ),
+        ),
+      ],
+    )
   ],
 );
 
@@ -68,19 +77,20 @@ class MyApp extends StatelessWidget {
     return SizedBox(
       width: initialSize.width,
       height: initialSize.height,
-      child: Column(
+      child: Stack(
         children: [
-          if (isDebug)
-            Container(
-              color: const Color.fromARGB(255, 255, 188, 4),
-              child: WindowTitleBarBox(child: MoveWindow()),
-            ),
           Expanded(
             child: WidgetsApp.router(
+              debugShowCheckedModeBanner: false,
               routerConfig: _router,
               color: const Color.fromARGB(255, 0, 0, 0),
             ),
           ),
+          if (isDebug)
+            Container(
+              color: const Color.fromARGB(153, 255, 188, 4),
+              child: WindowTitleBarBox(child: MoveWindow()),
+            ),
         ],
       ),
     );

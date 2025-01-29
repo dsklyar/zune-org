@@ -3,7 +3,11 @@ import 'package:flutter/foundation.dart';
 enum DebugComponent {
   controlsPage("Controls Page"),
   playerPage("Player Page"),
-  timing("TIming Component");
+  splashPage("Splash Page"),
+  overlaysPage("Overlays Page"),
+  database("SQLite Database"),
+  globalState("Global State"),
+  timing("Timing Components");
 
   const DebugComponent(this.name);
   final String name;

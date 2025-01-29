@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 library controls_page;
 
 import 'dart:math';
@@ -25,11 +27,13 @@ part "track_label_animation.dart";
 final console = DebugPrint().register(DebugComponent.controlsPage);
 
 class ControlsPage extends StatefulWidget {
+  final AnimationController parentController;
   final void Function({bool? fastClose}) closeOverlayHandler;
 
   const ControlsPage({
     super.key,
     required this.closeOverlayHandler,
+    required this.parentController,
   });
 
   @override
@@ -410,7 +414,13 @@ class _ControlsPageState extends State<ControlsPage>
       /// subscribers are only using it to derive values it is not necessary.
       /// E.g
       /// animation: Listenable.merge([_expandAnimationController, _3dPlaneAnimationController]),
-      animation: _expandAnimationController,
+      /// JK I just added widget.parentController to hook into overlay hide functionality
+      animation: Listenable.merge(
+        [
+          widget.parentController,
+          _expandAnimationController,
+        ],
+      ),
       builder: (context, child) => GestureDetector(
         onPanUpdate: (e) => _updateRotation(e, screenSize, widgets: [
           (key: upVolumeKey, control: ActiveControlEnum.volumeUp),
@@ -460,90 +470,100 @@ class _ControlsPageState extends State<ControlsPage>
                         ..setEntry(3, 2, 0.001)
                         ..rotateX(xRotation * pi / 180)
                         ..rotateY(yRotation * pi / 180),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            children: [
-                              Transform.translate(
-                                offset: Offset(
-                                  0,
-                                  _expandAnimationVolume.value,
-                                ),
-                                child: VolumeControl(
-                                  key: upVolumeKey,
-                                  type: VolumeControlTypeEnum.up,
-                                  onTapDown: (e, {key}) => _tiltOnTap(
-                                    e,
-                                    screenSize,
-                                    dir: ActiveControlEnum.volumeUp,
+                      child: Transform.scale(
+                        scale: Tween<double>(begin: 1, end: 0.95)
+                            .animate(
+                              CurvedAnimation(
+                                parent: widget.parentController,
+                                curve: Curves.easeInExpo,
+                              ),
+                            )
+                            .value,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              children: [
+                                Transform.translate(
+                                  offset: Offset(
+                                    0,
+                                    _expandAnimationVolume.value,
                                   ),
-                                  onTapUp: (_) => _restoreTilt(),
-                                  isActive:
-                                      ActiveControlEnum.volumeUp == isActive,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Transform.translate(
-                                offset:
-                                    Offset(_expandAnimationPrevNext.value, 0),
-                                child: PlaybackControl(
-                                  key: rewindKey,
-                                  type: PlaybackControlTypeEnum.rewind,
-                                  onTapDown: (e) => _tiltOnTap(e, screenSize,
-                                      dir: ActiveControlEnum.rewind),
-                                  onTapUp: (_) => _restoreTilt(),
-                                  isActive:
-                                      isActive == ActiveControlEnum.rewind,
-                                ),
-                              ),
-                              PlayPauseControl(
-                                key: playPauseKey,
-                                onTap: () => playPauseSong(),
-                                isActive:
-                                    isActive == ActiveControlEnum.playPause,
-                              ),
-                              Transform.translate(
-                                offset:
-                                    Offset(-_expandAnimationPrevNext.value, 0),
-                                child: PlaybackControl(
-                                  key: fastForwardKey,
-                                  type: PlaybackControlTypeEnum.fastForward,
-                                  onTapDown: (e) => _tiltOnTap(e, screenSize,
-                                      dir: ActiveControlEnum.fastForward),
-                                  onTapUp: (_) => _restoreTilt(),
-                                  isActive:
-                                      isActive == ActiveControlEnum.fastForward,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Transform.translate(
-                                offset:
-                                    Offset(0, -_expandAnimationVolume.value),
-                                child: VolumeControl(
-                                  key: downVolumeKey,
-                                  hasVolumeLabel: true,
-                                  type: VolumeControlTypeEnum.down,
-                                  onTapDown: (e, {key}) => _tiltOnTap(
-                                    e,
-                                    screenSize,
-                                    dir: ActiveControlEnum.volumeDown,
+                                  child: VolumeControl(
+                                    key: upVolumeKey,
+                                    type: VolumeControlTypeEnum.up,
+                                    onTapDown: (e, {key}) => _tiltOnTap(
+                                      e,
+                                      screenSize,
+                                      dir: ActiveControlEnum.volumeUp,
+                                    ),
+                                    onTapUp: (_) => _restoreTilt(),
+                                    isActive:
+                                        ActiveControlEnum.volumeUp == isActive,
                                   ),
-                                  onTapUp: (_) => _restoreTilt(),
-                                  isActive:
-                                      ActiveControlEnum.volumeDown == isActive,
                                 ),
-                              ),
-                            ],
-                          )
-                        ],
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Transform.translate(
+                                  offset:
+                                      Offset(_expandAnimationPrevNext.value, 0),
+                                  child: PlaybackControl(
+                                    key: rewindKey,
+                                    type: PlaybackControlTypeEnum.rewind,
+                                    onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                        dir: ActiveControlEnum.rewind),
+                                    onTapUp: (_) => _restoreTilt(),
+                                    isActive:
+                                        isActive == ActiveControlEnum.rewind,
+                                  ),
+                                ),
+                                PlayPauseControl(
+                                  key: playPauseKey,
+                                  onTap: () => playPauseSong(),
+                                  isActive:
+                                      isActive == ActiveControlEnum.playPause,
+                                ),
+                                Transform.translate(
+                                  offset: Offset(
+                                      -_expandAnimationPrevNext.value, 0),
+                                  child: PlaybackControl(
+                                    key: fastForwardKey,
+                                    type: PlaybackControlTypeEnum.fastForward,
+                                    onTapDown: (e) => _tiltOnTap(e, screenSize,
+                                        dir: ActiveControlEnum.fastForward),
+                                    onTapUp: (_) => _restoreTilt(),
+                                    isActive: isActive ==
+                                        ActiveControlEnum.fastForward,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Transform.translate(
+                                  offset:
+                                      Offset(0, -_expandAnimationVolume.value),
+                                  child: VolumeControl(
+                                    key: downVolumeKey,
+                                    hasVolumeLabel: true,
+                                    type: VolumeControlTypeEnum.down,
+                                    onTapDown: (e, {key}) => _tiltOnTap(
+                                      e,
+                                      screenSize,
+                                      dir: ActiveControlEnum.volumeDown,
+                                    ),
+                                    onTapUp: (_) => _restoreTilt(),
+                                    isActive: ActiveControlEnum.volumeDown ==
+                                        isActive,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),

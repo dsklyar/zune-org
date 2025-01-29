@@ -41,7 +41,7 @@ class SupportMenu extends StatelessWidget {
                     items: state.pinnedItems,
                     onClickHandler: (AlbumModel model) {
                       state.updateCurrentlyPlaying(model);
-                      context.go("/playing");
+                      context.go(ApplicationRoute.player.route);
                     },
                   );
                 },
@@ -53,7 +53,7 @@ class SupportMenu extends StatelessWidget {
                     items: state.recentlyPlayedItems,
                     onClickHandler: (AlbumModel model) {
                       state.updateCurrentlyPlaying(model);
-                      context.go("/playing");
+                      context.go(ApplicationRoute.player.route);
                     },
                   );
                 },
@@ -65,7 +65,7 @@ class SupportMenu extends StatelessWidget {
                     items: state.newlyAddedItems,
                     onClickHandler: (AlbumModel model) {
                       state.updateCurrentlyPlaying(model);
-                      context.go("/playing");
+                      context.go(ApplicationRoute.player.route);
                     },
                     isLast: true,
                   );
