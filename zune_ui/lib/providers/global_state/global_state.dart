@@ -2,6 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zune_ui/database/index.dart';
 import 'package:zune_ui/messages/all.dart';
+import 'package:zune_ui/widgets/custom/debug_print.dart';
+
+final console = DebugPrint().register(DebugComponent.globalState);
 
 class GlobalModalState extends ChangeNotifier {
   // For Pinned/New/Recently items allow up to 8 items in render
@@ -45,11 +48,15 @@ class GlobalModalState extends ChangeNotifier {
   Future<void> initializeStore() async {
     // TODO: On intial load of DB and music this will error:
     _newlyAddedItems = (await AlbumModel.readAll()).slice(0, 8);
+
     VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
         .sendSignalToRust();
     QueueChange.rustSignalStream.listen((rustSignal) {
       final queueChangeEvent = rustSignal.message;
-      print("Got message from rust ${queueChangeEvent.currentRustIndex}");
+
+      console.log("Got message from rust ${queueChangeEvent.currentRustIndex}",
+          customTags: ["GLOBAL STATE"]);
+
       _currentSongIndex = queueChangeEvent.currentRustIndex;
       _currentlyPlaying = (
         album: _currentlyPlaying!.album,
@@ -112,9 +119,8 @@ class GlobalModalState extends ChangeNotifier {
   }
 
   void playNextPrevSong(int delta) {
-    if (kDebugMode) {
-      print("SongChange Event: { delta: $delta prev: $_currentSongIndex}");
-    }
+    console.log("SongChange Event: { delta: $delta prev: $_currentSongIndex}",
+        customTags: ["GLOBAL STATE"]);
 
     final trackIndex = _getNextPrevTrackIndex(delta);
     if (trackIndex != -1) {
@@ -140,9 +146,9 @@ class GlobalModalState extends ChangeNotifier {
   }
 
   void changeVolumeLevel(int delta) {
-    if (kDebugMode) {
-      print("VolumeChange Event: { delta: $delta prev: $_volumeLevel}");
-    }
+    console.log("VolumeChange Event: { delta: $delta prev: $_volumeLevel}",
+        customTags: ["GLOBAL STATE"]);
+
     if (delta > 0) {
       if (_volumeLevel <= 29) {
         _volumeLevel += 1;

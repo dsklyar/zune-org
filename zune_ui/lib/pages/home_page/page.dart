@@ -11,11 +11,9 @@ enum MenuType {
 
 class HomePage extends StatefulWidget {
   final Size size;
-  final bool isDebug;
   const HomePage({
     super.key,
     required this.size,
-    required this.isDebug,
   });
 
   @override
@@ -80,7 +78,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
     _mainMenuHeightAnimation = Tween(
       end: 1000.0,
-      begin: 450.0,
+      begin: widget.size.height,
     ).animate(
       CurvedAnimation(
         parent: _controller,
@@ -203,7 +201,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Container(
       width: widget.size.width,
-      height: widget.isDebug ? widget.size.height - 30 : widget.size.height,
+      height: widget.size.height,
       decoration: const BoxDecoration(
           // color: Color.fromARGB(121, 238, 3, 81),
           ),

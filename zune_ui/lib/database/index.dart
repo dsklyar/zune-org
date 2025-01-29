@@ -1,6 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -8,6 +7,9 @@ import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:collection/collection.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:zune_ui/database/metadata.dart';
+import 'package:zune_ui/widgets/custom/debug_print.dart';
+
+final console = DebugPrint().register(DebugComponent.database);
 
 class ZuneDatabase {
   static final ZuneDatabase instance = ZuneDatabase._internal();
@@ -29,7 +31,7 @@ class ZuneDatabase {
   }
 
   Future<Database> _initDatabase() async {
-    print("Initing Database");
+    console.log("Initiating Database", customTags: ["DATABASE"]);
 
     // https://github.com/tekartik/sqflite/blob/master/sqflite_common_ffi/doc/using_ffi_instead_of_sqflite.md
     if (Platform.isWindows || Platform.isLinux) {
@@ -41,7 +43,7 @@ class ZuneDatabase {
 
     final databasePath = await getDatabasesPath();
     final path = '$databasePath/zune.db';
-    print("Path $path");
+    console.log("Database $path", customTags: ["DATABASE"]);
 
     return await openDatabase(
       path,
@@ -56,8 +58,9 @@ class ZuneDatabase {
   }
 
   Future<void> _createDatabase(Database db, int version) async {
-    //TODO: Reference images in a separate table and load them on getAll
-    print("Creating tables in _createDatabase");
+    /// TODO: Reference images in a separate table and load them on getAll
+    console.log("Creating tables in _createDatabase", customTags: ["DATABASE"]);
+
     return await db.execute('''
           ${SongModel.createModelScript()}
           ${AlbumModel.createModelScript()}
@@ -353,7 +356,9 @@ class Seed {
         SELECT COUNT(*) FROM ${SongModel.tableName};
     ''');
     var count = queryResult.first["COUNT(*)"] as int;
-    print("Is count > 0?  ${count > 0}");
+    console.log("Should fill tables: Is count > 0?  ${count > 0}",
+        customTags: ["DATABASE"]);
+
     if (count > 0) return;
 
     final files = Metadata("music_dir").files;
@@ -376,6 +381,6 @@ class Seed {
       );
     }
 
-    print("Done");
+    console.log("Tables Created, Done working DB", customTags: ["DATABASE"]);
   }
 }
