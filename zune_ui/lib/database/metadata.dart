@@ -11,8 +11,11 @@ class Metadata {
   }
 
   void initialize() {
+    /// NOTE: It seems that Directory.current is not the best way to get the path
+    ///       https://github.com/flutter/flutter/issues/135740
+    final root = Platform.environment['PWD']?.split('zune_ui').first ?? Directory.current.path.split('zune_ui').first;
     var folder = Directory(
-            "${Directory.current.path.split('zune_ui').first}\\$musicFolder")
+            "$root$musicFolder")
         .listSync(recursive: true)
         .whereType<File>()
         .where((element) =>

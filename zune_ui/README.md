@@ -2,6 +2,22 @@
 
 A new Flutter project.
 
+## Installation
+
+### Mac OS
+Install cargo
+`brew install rustup`
+Run rust init
+`rustup-init`
+Update rust backend
+`cargo update`
+Install RINF
+`cargo install rinf`
+Update RINF
+`rinf message`
+Build for mac
+`flutter run -d macos`
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.

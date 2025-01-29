@@ -61,10 +61,10 @@ class ZuneDatabase {
     /// TODO: Reference images in a separate table and load them on getAll
     console.log("Creating tables in _createDatabase", customTags: ["DATABASE"]);
 
-    return await db.execute('''
-          ${SongModel.createModelScript()}
-          ${AlbumModel.createModelScript()}
-      ''');
+    /// TODO: It seems that on MacOS I need to split these scripts into separate calls.
+    ///       Otherwise, the AlbumSummary view is not created.
+    await db.execute(SongModel.createModelScript());
+    return await db.execute(AlbumModel.createModelScript());
   }
 }
 

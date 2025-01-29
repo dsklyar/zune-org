@@ -47,7 +47,8 @@ class GlobalModalState extends ChangeNotifier {
 
   Future<void> initializeStore() async {
     // TODO: On intial load of DB and music this will error:
-    _newlyAddedItems = (await AlbumModel.readAll()).slice(0, 8);
+    final temp = await AlbumModel.readAll();
+    _newlyAddedItems = temp.length > 8 ? temp.slice(0, 8) : temp;
 
     VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
         .sendSignalToRust();
