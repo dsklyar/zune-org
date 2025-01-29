@@ -30,7 +30,8 @@ class SupportMenu extends StatelessWidget {
                   return CurrentItem(
                     album: state.currentlyPlaying?.album,
                     isPlaying: state.isPlaying,
-                    onClickHandler: (item) => context.go("/playing"),
+                    onClickHandler: (item) =>
+                        context.go(ApplicationRoute.player.route),
                   );
                 },
               ),

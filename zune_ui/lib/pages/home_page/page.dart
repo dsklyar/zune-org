@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         height: 348,
         // Need decoration for events to trigger
         decoration: const BoxDecoration(
-          color: Colors.translucent,
+          color: Colors.transparent,
         ),
       ),
     );
@@ -139,7 +139,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         height: _supportMenuHeightAnimation.value,
         // Need decoration for events to trigger
         decoration: const BoxDecoration(
-          color: Colors.translucent,
+          color: Colors.transparent,
         ),
       ),
     );
