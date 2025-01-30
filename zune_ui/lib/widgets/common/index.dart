@@ -7,3 +7,4 @@ import 'package:zune_ui/database/index.dart';
 part "styles.dart";
 part "album_tile.dart";
 part "circle_widget.dart";
+part "on_tap_decorator.dart";

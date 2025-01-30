@@ -151,13 +151,21 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
                           onTap: widget.showOverlay,
                         ),
                       ),
-                      Transform.translate(
-                        offset: Offset(
-                          MediaQuery.of(context).size.width + _offset,
-                          0,
-                        ),
-                        child: TrackTile(
-                          track: track,
+
+                      /// NOTE: Need to hide next track in the tree unless offset
+                      ///       is changing. Reason, when animating mounting/unmounting
+                      ///       of the Home page, the next track shows up in the page transform
+                      Visibility(
+                        /// NOTE: If offset is 0, user is not interacting with the track
+                        visible: _offset != 0,
+                        child: Transform.translate(
+                          offset: Offset(
+                            MediaQuery.of(context).size.width + _offset,
+                            0,
+                          ),
+                          child: TrackTile(
+                            track: track,
+                          ),
                         ),
                       ),
                     ],
