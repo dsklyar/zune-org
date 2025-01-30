@@ -80,15 +80,13 @@ class MyApp extends StatelessWidget {
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
-          Expanded(
-            child: WidgetsApp.router(
-              debugShowCheckedModeBanner: false,
-              routerConfig: _router,
-              color: const Color.fromARGB(255, 0, 0, 0),
-              textStyle: const TextStyle(
-                // Classic Zune Font :)
-                fontFamily: 'Zegoe UI',
-              ),
+          WidgetsApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: _router,
+            color: const Color.fromARGB(255, 0, 0, 0),
+            textStyle: const TextStyle(
+              // Classic Zune Font :)
+              fontFamily: 'Zegoe UI',
             ),
           ),
           if (isDebug)
