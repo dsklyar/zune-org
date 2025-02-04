@@ -6,15 +6,17 @@ import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 final console = DebugPrint().register(DebugComponent.globalState);
 
+
+
 class GlobalModalState extends ChangeNotifier {
   // For Pinned/New/Recently items allow up to 8 items in render
-  static const int _maxAllowedItemsCount = 8;
+  static const int _maxAllowedItemsCount = 20;
 
-  ({AlbumModel album, SongModel song})? _currentlyPlaying;
-  ({AlbumModel album, SongModel song})? get currentlyPlaying =>
+  ({AlbumModel album, TrackModel song})? _currentlyPlaying;
+  ({AlbumModel album, TrackModel song})? get currentlyPlaying =>
       _currentlyPlaying;
 
-  List<SongModel> _currentSongList = [];
+  List<TrackModel> _currentSongList = [];
   int _currentSongIndex = 0;
 
   /// Property used to track the most recent choice between
@@ -48,7 +50,7 @@ class GlobalModalState extends ChangeNotifier {
   Future<void> initializeStore() async {
     // TODO: On intial load of DB and music this will error:
     final temp = await AlbumModel.readAll();
-    _newlyAddedItems = temp.length > 8 ? temp.slice(0, 8) : temp;
+    _newlyAddedItems = temp.length > _maxAllowedItemsCount ? temp.slice(0, _maxAllowedItemsCount) : temp;
 
     VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
         .sendSignalToRust();
@@ -73,7 +75,7 @@ class GlobalModalState extends ChangeNotifier {
 
   void updateCurrentlyPlaying(AlbumModel album) {
     if (album.album_name == _currentlyPlaying?.album.album_name) return;
-    album.getSongs().then(
+    album.getTracks().then(
       (value) {
         _currentlyPlaying = (album: album, song: value.first);
         _isPlaying = true;
@@ -167,7 +169,7 @@ class GlobalModalState extends ChangeNotifier {
     }
   }
 
-  UnmodifiableListView<SongModel> getNext3Songs() {
+  UnmodifiableListView<TrackModel> getNext3Songs() {
     if (_currentSongList.isEmpty) return UnmodifiableListView([]);
 
     final absLen = _currentSongList.length;

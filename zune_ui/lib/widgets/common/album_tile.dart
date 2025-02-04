@@ -36,13 +36,13 @@ class AlbumTile extends StatelessWidget {
     final double size = isPlayedCurrently
         ? TileUtility.largeTileWidth
         : TileUtility.regularTileWidth;
-    final Uint8List? pathToAlbumCover = album.album_image;
+    final Uint8List? pathToAlbumCover = album.album_cover;
     final TextStyle albumTextStyle = isPlayedCurrently
         ? TextStyles.currentlyPlayedTitle
         : TextStyles.albumTitle;
     final String? albumName =
-        ((album.album_image != null && isPlayedCurrently) ||
-                album.album_image == null)
+        ((album.album_cover != null && isPlayedCurrently) ||
+                album.album_cover == null)
             ? album.album_name.toUpperCase()
             : null;
 
@@ -60,12 +60,12 @@ class AlbumTile extends StatelessWidget {
 }
 
 class TrackTile extends StatelessWidget {
-  final SongModel track;
+  final Uint8List? albumCover;
   final void Function()? onTap;
 
   const TrackTile({
     super.key,
-    required this.track,
+    required this.albumCover,
     this.onTap,
   });
 
@@ -76,7 +76,7 @@ class TrackTile extends StatelessWidget {
       child: SquareTile(
         size: TileUtility.largeTileWidth,
         alignment: Alignment.bottomLeft,
-        background: track.image_blob,
+        background: albumCover,
       ),
     );
   }
@@ -108,7 +108,7 @@ class SquareTile extends StatelessWidget {
               shape: BoxShape.rectangle,
               border: Border.all(
                 width: 1,
-                color: Colors.white,
+                color: Colors.gray,
               ),
             )
           : null,
@@ -119,7 +119,8 @@ class SquareTile extends StatelessWidget {
           if (text != null)
             Container(
               padding: const EdgeInsets.all(4.0),
-              child: Text(text!, style: textStyle),
+              /// NOTE: Zune only shows maximum of 3 lines from the title
+              child: Text(text!, style: textStyle, maxLines: 3,),
             )
         ],
       ),

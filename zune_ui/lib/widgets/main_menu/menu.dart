@@ -26,23 +26,25 @@ class _MainMenuState extends State<MainMenu>
   @override
   Widget build(BuildContext context) {
     return Container(
-      // decoration: const BoxDecoration(
-      //   color: Color.fromARGB(123, 30, 248, 59),
-      // ),
+      color: Colors.transparent,
       child: ScrollConfiguration(
         // Disable scrollbar, but let scrolling
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
         child: ListView(
           shrinkWrap: true,
           scrollDirection: Axis.vertical,
-          children: const [
-            SizedBox(
+          children: [
+            const SizedBox(
               height: 42,
             ),
             MenuItem(
               text: 'music',
+              onTapHandler: (Offset target) => context.go(
+                ApplicationRoute.music.route,
+                extra: target,
+              ),
               hasIcon: true,
-              subTextItems: [
+              subTextItems: const [
                 'songs',
                 'genres',
                 'albums',
@@ -50,19 +52,19 @@ class _MainMenuState extends State<MainMenu>
                 'playlists',
               ],
             ),
-            MenuItem(
+            const MenuItem(
               text: 'videos',
             ),
-            MenuItem(text: 'pictures', subTextItems: [
+            const MenuItem(text: 'pictures', subTextItems: [
               'by folder',
               'by date',
             ]),
-            MenuItem(text: 'radio'),
-            // MenuItem(text: 'marketplace'),
-            MenuItem(text: 'social'),
-            MenuItem(text: 'internet'),
-            MenuItem(text: 'settings'),
-            SizedBox(
+            const MenuItem(text: 'radio'),
+            // const MenuItem(text: 'marketplace'),
+            const MenuItem(text: 'social'),
+            const MenuItem(text: 'internet'),
+            const MenuItem(text: 'settings'),
+            const SizedBox(
               height: 64,
             )
           ],

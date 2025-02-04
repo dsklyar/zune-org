@@ -50,9 +50,7 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
   }
 
   void _onHorizontalDragEnd(DragEndDetails details) {
-    // FocusScope.of(context).unfocus();
     final globalState = context.read<GlobalModalState>();
-    console.log("----->$_offset, ${272 / 4}");
 
     // TODO: Fix magical numbers
     if (_offset > (272 / 4)) {
@@ -131,9 +129,9 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Selector<GlobalModalState, SongModel>(
-                  selector: (context, state) => state.currentlyPlaying!.song,
-                  builder: (context, track, child) => Stack(
+                Selector<GlobalModalState, AlbumModel>(
+                  selector: (context, state) => state.currentlyPlaying!.album,
+                  builder: (context, album, child) => Stack(
                     children: [
                       Transform.translate(
                         offset: Offset(
@@ -141,13 +139,13 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
                           0,
                         ),
                         child: TrackTile(
-                          track: track,
+                          albumCover: album.album_cover,
                         ),
                       ),
                       Transform.translate(
                         offset: Offset(_offset, 0),
                         child: TrackTile(
-                          track: track,
+                          albumCover: album.album_cover,
                           onTap: widget.showOverlay,
                         ),
                       ),
@@ -164,7 +162,7 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
                             0,
                           ),
                           child: TrackTile(
-                            track: track,
+                            albumCover: album.album_cover,
                           ),
                         ),
                       ),

@@ -4,12 +4,14 @@ class MenuItem extends StatelessWidget {
   final String text;
   final List<String> subTextItems;
   final bool hasIcon;
+  final void Function(Offset target)? onTapHandler;
 
   const MenuItem({
     super.key,
     this.hasIcon = false,
     required this.text,
     this.subTextItems = const [],
+    this.onTapHandler,
   });
 
   @override
@@ -42,20 +44,23 @@ class MenuItem extends StatelessWidget {
                       : const EdgeInsets.only(
                           left: 16 + 32 + 16,
                         ),
-                  child: Text(
-                    text.toLowerCase(),
-                    style: Styles.item.copyWith(
-                      shadows: [
-                        if (isHovered)
-                          const Shadow(
-                            blurRadius: 10.0,
-                            color: Colors.white,
-                            offset: Offset(1, 1),
-                          ),
-                      ],
+                  child: GestureDetector(
+                    onTapDown: (e) => onTapHandler?.call(e.globalPosition),
+                    child: Text(
+                      text.toLowerCase(),
+                      style: Styles.item.copyWith(
+                        shadows: [
+                          if (isHovered)
+                            const Shadow(
+                              blurRadius: 10.0,
+                              color: Colors.white,
+                              offset: Offset(1, 1),
+                            ),
+                        ],
+                      ),
+                      overflow: TextOverflow.visible,
+                      softWrap: false,
                     ),
-                    overflow: TextOverflow.visible,
-                    softWrap: false,
                   ),
                 ),
               ),
