@@ -97,82 +97,108 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
                 if (state.currentlyPlaying == null) {
                   return const SizedBox.shrink();
                 }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                return Stack(
                   children: [
-                    GoBackButton(
-                      callback: onBackClick,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8, top: 32),
-                      child: Column(
-                        // Make artist/album title align from left side
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            state.currentlyPlaying!.album.artist_name
-                                .toUpperCase(),
-                            style: Styles.albumArtist,
-                            overflow: TextOverflow.visible,
-                            softWrap: false,
+                    if (state.currentlyPlaying!.album.album_illustration !=
+                        null)
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: Tween<double>(begin: 1, end: 0)
+                              .animate(_controller)
+                              .value,
+                          child: Transform(
+                            transform: Matrix4.identity()
+                              ..setEntry(3, 2, 0.0009)
+                              ..translate(0.0, 0.0, -50.0)
+                              ..scale(0.95),
+                            child: Image.memory(
+                              state.currentlyPlaying!.album.album_illustration!,
+                              fit: BoxFit.cover,
+                              color: const Color.fromARGB(150, 0, 0, 0),
+                              colorBlendMode: BlendMode.darken,
+                              alignment: Alignment.center,
+                            ),
                           ),
-                          Text(
-                            state.currentlyPlaying!.album.album_name
-                                .toUpperCase(),
-                            style: Styles.albumTitle,
-                            overflow: TextOverflow.visible,
-                            softWrap: false,
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Column(
-                          // Make song title align from left side
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CurrentTrackTile(
-                              showOverlay: () => overlaysProvider!
-                                  .showOverlay(OverlayType.controls),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                state.currentlyPlaying!.song.name,
-                                style: Styles.songTitle,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                top: 8,
-                                left: 40,
-                              ),
-                              child: Consumer<GlobalModalState>(
-                                builder: (context, state, child) {
-                                  final songs = state.getNext3Songs();
-                                  if (songs.isEmpty) {
-                                    return const SizedBox.shrink();
-                                  }
-                                  return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: state
-                                          .getNext3Songs()
-                                          .map((e) => Text(
-                                                e.name,
-                                                style: Styles.listItem,
-                                              ))
-                                          .toList());
-                                },
-                              ),
-                            ),
-                          ],
                         ),
                       ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GoBackButton(
+                          callback: onBackClick,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, top: 32),
+                          child: Column(
+                            // Make artist/album title align from left side
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                state.currentlyPlaying!.album.artist_name
+                                    .toUpperCase(),
+                                style: Styles.albumArtist,
+                                overflow: TextOverflow.visible,
+                                softWrap: false,
+                              ),
+                              Text(
+                                state.currentlyPlaying!.album.album_name
+                                    .toUpperCase(),
+                                style: Styles.albumTitle,
+                                overflow: TextOverflow.visible,
+                                softWrap: false,
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Column(
+                              // Make song title align from left side
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CurrentTrackTile(
+                                  showOverlay: () => overlaysProvider!
+                                      .showOverlay(OverlayType.controls),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: Text(
+                                    state.currentlyPlaying!.song.name,
+                                    style: Styles.songTitle,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 8,
+                                    left: 40,
+                                  ),
+                                  child: Consumer<GlobalModalState>(
+                                    builder: (context, state, child) {
+                                      final songs = state.getNext3Songs();
+                                      if (songs.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+                                      return Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: state
+                                              .getNext3Songs()
+                                              .map((e) => Text(
+                                                    e.name,
+                                                    style: Styles.listItem,
+                                                  ))
+                                              .toList());
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const TrackActionsControls(),
+                      ],
                     ),
-                    const TrackActionsControls(),
                   ],
                 );
               },

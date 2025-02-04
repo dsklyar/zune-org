@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:zune_ui/pages/music_page/index.dart';
 import 'package:zune_ui/pages/overlays_page/page.dart';
 import 'package:zune_ui/pages/player_page/page.dart';
 import 'package:zune_ui/providers/global_state/global_state.dart';
@@ -34,6 +35,13 @@ final _router = GoRouter(
           path: ApplicationRoute.player.route,
           builder: (context, state) => const PlayerPage(
             size: initialSize,
+          ),
+        ),
+        GoRoute(
+          path: ApplicationRoute.music.route,
+          builder: (context, state) => MusicPage(
+            size: initialSize,
+            startingOffset: state.extra! as Offset,
           ),
         ),
       ],

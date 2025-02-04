@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 enum DebugComponent {
   controlsPage("Controls Page"),
+  musicPage("Music Page"),
   playerPage("Player Page"),
   splashPage("Splash Page"),
   overlaysPage("Overlays Page"),
