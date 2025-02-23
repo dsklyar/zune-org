@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:zune_ui/pages/music_page/index.dart';
-import 'package:zune_ui/pages/overlays_page/page.dart';
-import 'package:zune_ui/pages/player_page/page.dart';
+import 'package:zune_ui/pages/overlays_page/index.dart';
+import 'package:zune_ui/pages/player_page/index.dart';
 import 'package:zune_ui/providers/global_state/global_state.dart';
 import 'package:zune_ui/providers/scroll_state/scroll_state.dart';
 import 'package:zune_ui/pages/home_page/page.dart';
@@ -39,10 +39,15 @@ final _router = GoRouter(
         ),
         GoRoute(
           path: ApplicationRoute.music.route,
-          builder: (context, state) => MusicPage(
-            size: initialSize,
-            startingOffset: state.extra! as Offset,
-          ),
+          builder: (context, state) {
+            if (state.extra == null) {
+              return const SizedBox.shrink();
+            }
+            return MusicPageWrapped(
+              size: initialSize,
+              startingOffset: state.extra as Offset,
+            );
+          },
         ),
       ],
     )

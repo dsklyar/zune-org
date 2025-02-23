@@ -1,17 +1,4 @@
-library overlays_page;
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:zune_ui/pages/controls_page/page.dart';
-import 'package:zune_ui/pages/splash_page/page.dart';
-import 'package:zune_ui/widgets/custom/debug_print.dart';
-
-part "wrapper.dart";
-
-const initialSize = Size(272, 480);
-const isDebug = kDebugMode;
-
-final console = DebugPrint().register(DebugComponent.overlaysPage);
+part of overlays_page;
 
 class OverlaysPage extends StatefulWidget {
   final Size size;
@@ -28,24 +15,27 @@ class OverlaysPage extends StatefulWidget {
 
 class _OverlaysPageState extends State<OverlaysPage>
     with TickerProviderStateMixin {
-  late final AnimationController _controller;
   late final AnimationController _controlsPageAnimationController;
+  late final AnimationController _searchIndexPagAnimationController;
+
   final OverlayPortalController _splashPageOverlayController =
       OverlayPortalController();
   final OverlayPortalController _controlsPageOverlayController =
+      OverlayPortalController();
+  final OverlayPortalController _searchIndexPageOverlayController =
       OverlayPortalController();
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 200),
-    );
     _controlsPageAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
+    );
+    _searchIndexPagAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -55,7 +45,8 @@ class _OverlaysPageState extends State<OverlaysPage>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controlsPageAnimationController.dispose();
+    _searchIndexPagAnimationController.dispose();
     super.dispose();
   }
 
@@ -79,12 +70,21 @@ class _OverlaysPageState extends State<OverlaysPage>
     }
   }
 
+  void _closeSearchIndexPageOverlay() {
+    _searchIndexPagAnimationController.forward().then((_) {
+      _searchIndexPageOverlayController.hide();
+      _searchIndexPagAnimationController.reset();
+    });
+  }
+
   void _showOverlay(OverlayType type) {
     switch (type) {
       case OverlayType.controls:
         _controlsPageOverlayController.show();
       case OverlayType.splash:
         _splashPageOverlayController.show();
+      case OverlayType.searchIndex:
+        _searchIndexPageOverlayController.show();
     }
   }
 
@@ -94,6 +94,13 @@ class _OverlaysPageState extends State<OverlaysPage>
       showOverlay: _showOverlay,
       child: Stack(
         children: [
+          OverlayPortal(
+            controller: _searchIndexPageOverlayController,
+            overlayChildBuilder: (context) => SearchIndexPage(
+              closeOverlayHandler: _closeSearchIndexPageOverlay,
+              parentController: _searchIndexPagAnimationController,
+            ),
+          ),
           OverlayPortal(
             controller: _splashPageOverlayController,
             overlayChildBuilder: (context) =>

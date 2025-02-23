@@ -142,10 +142,11 @@ class _TrackLabelAnimationState extends State<TrackLabelAnimation>
   Widget build(BuildContext context) {
     _isMounted = false;
     return FadeTransition(
-        opacity: _fadeAnimation,
-        child: SlideTransition(
-          position: _animation,
-          child: _mountedChild,
-        ));
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _animation,
+        child: _mountedChild,
+      ),
+    );
   }
 }

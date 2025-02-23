@@ -13,11 +13,17 @@ class TextStyles {
     fontSize: 12,
     height: 1,
   );
+  static const TextStyle searchIndexTile = TextStyle(
+    fontWeight: FontWeight.w500,
+    fontSize: 24,
+    height: 1,
+  );
 }
 
 class TileUtility {
   static const double largeTileWidth = 160;
   static const double regularTileWidth = 78;
+  static const double smallTileWidth = 56;
 }
 
 class AlbumTile extends StatelessWidget {
@@ -77,6 +83,31 @@ class TrackTile extends StatelessWidget {
         size: TileUtility.largeTileWidth,
         alignment: Alignment.bottomLeft,
         background: albumCover,
+        fillBackground: albumCover == null,
+      ),
+    );
+  }
+}
+
+class SearchIndexTile extends StatelessWidget {
+  final String index;
+  final void Function() onTap;
+
+  const SearchIndexTile({
+    super.key,
+    required this.index,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: SquareTile(
+        size: TileUtility.smallTileWidth,
+        alignment: Alignment.bottomRight,
+        textStyle: TextStyles.searchIndexTile,
+        text: index,
       ),
     );
   }
@@ -87,6 +118,7 @@ class SquareTile extends StatelessWidget {
   final Uint8List? background;
   final AlignmentGeometry? alignment;
   final TextStyle? textStyle;
+  final bool? fillBackground;
   final double size;
 
   const SquareTile({
@@ -96,6 +128,8 @@ class SquareTile extends StatelessWidget {
     this.background,
     this.alignment = Alignment.bottomLeft,
     this.textStyle = TextStyles.albumTitle,
+    // If true removes border and applies color
+    this.fillBackground = false,
   });
 
   @override
@@ -106,10 +140,15 @@ class SquareTile extends StatelessWidget {
       decoration: background == null
           ? BoxDecoration(
               shape: BoxShape.rectangle,
-              border: Border.all(
-                width: 1,
-                color: Colors.gray,
-              ),
+              color: fillBackground == true
+                  ? Colors.white.withAlpha(50)
+                  : Colors.black,
+              border: fillBackground == true
+                  ? null
+                  : Border.all(
+                      width: 1,
+                      color: Colors.white.withAlpha(50),
+                    ),
             )
           : null,
       child: Stack(
@@ -119,8 +158,13 @@ class SquareTile extends StatelessWidget {
           if (text != null)
             Container(
               padding: const EdgeInsets.all(4.0),
+
               /// NOTE: Zune only shows maximum of 3 lines from the title
-              child: Text(text!, style: textStyle, maxLines: 3,),
+              child: Text(
+                text!,
+                style: textStyle,
+                maxLines: 3,
+              ),
             )
         ],
       ),

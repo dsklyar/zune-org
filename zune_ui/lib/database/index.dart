@@ -3,8 +3,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:audio_metadata_reader/audio_metadata_reader.dart';
-import 'package:collection/collection.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:zune_ui/database/metadata.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
@@ -25,8 +23,7 @@ class ZuneDatabase {
 
     _database = await _initDatabase();
 
-    // if debug please seed my databussy
-    await Seed.seed();
+    await Initializer.populateDatabase();
     return _database!;
   }
 
@@ -252,6 +249,9 @@ class AlbumModel {
   Uint8List? album_illustration;
   List<int> track_ids = [];
 
+  /// NON-TABLE Properties
+  List<TrackModel> tracks = [];
+
   AlbumModel(
     this.album_name,
     this.artist_name,
@@ -363,7 +363,8 @@ class AlbumModel {
     ''');
 
     if (maps.isNotEmpty) {
-      return maps.map((json) => TrackModel.fromJson(json)).toList();
+      tracks = maps.map((json) => TrackModel.fromJson(json)).toList();
+      return tracks;
     } else {
       throw Exception(
           'Album ${album_name}_did not find ids with ${track_ids.join(", ")}');
@@ -438,8 +439,8 @@ class ArtistModel {
   }
 }
 
-class Seed {
-  static Future<void> seed() async {
+class Initializer {
+  static Future<void> populateDatabase() async {
     var db = await ZuneDatabase.instance.database;
     var queryResult = await db.rawQuery('''
         SELECT COUNT(*) FROM ${TrackModel.tableName};
@@ -452,11 +453,6 @@ class Seed {
 
     final files = Metadata("music_dir").files;
     for (var file in files) {
-      // final Uint8List? imageBytes = file.pictures
-      //     .firstWhereOrNull(
-      //         (element) => element.pictureType == PictureType.coverFront)
-      //     ?.bytes;
-
       final track = await TrackModel.create(
         TrackModel(
           null,

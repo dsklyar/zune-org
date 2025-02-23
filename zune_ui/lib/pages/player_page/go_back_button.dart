@@ -36,6 +36,5 @@ class GoBackButton extends StatelessWidget {
         onTapHandler: callback,
       ),
     );
-    ;
   }
 }
