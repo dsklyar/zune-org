@@ -24,7 +24,7 @@ class VolumeLabel extends StatelessWidget {
         builder: (context, volumeLevel, child) => FadeAnimationWrapper(
           duration: const Duration(milliseconds: 300),
           delayBeforeFadeOut: const Duration(seconds: 2),
-          // Ignore pointer here so that events from backdrop would be caputred in the stack
+          // Ignore pointer here so that events from backdrop would be captured in the stack
           child: IgnorePointer(
             child: Text(
               convertToString(volumeLevel),

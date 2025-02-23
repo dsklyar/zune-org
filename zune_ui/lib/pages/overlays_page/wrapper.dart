@@ -3,6 +3,7 @@ part of overlays_page;
 enum OverlayType {
   controls,
   splash,
+  searchIndex,
 }
 
 class OverlaysProvider extends InheritedWidget {

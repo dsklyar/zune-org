@@ -1,30 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
-
-library controls_page;
-
-import 'dart:math';
-
-import 'package:flutter/material.dart' show Icon, Icons;
-import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:zune_ui/database/index.dart';
-import 'package:zune_ui/messages/all.dart';
-import 'package:zune_ui/providers/global_state/global_state.dart';
-import 'package:zune_ui/widgets/common/index.dart';
-import 'package:zune_ui/widgets/custom/debug_print.dart';
-import 'package:zune_ui/widgets/custom/time_utils.dart';
-import 'package:zune_ui/widgets/fade_animation_wrapper/index.dart';
-
-part "volume_label.dart";
-part "font_styles.dart";
-part "backdrop.dart";
-part "currently_playing_label.dart";
-part "volume_control.dart";
-part "playback_control.dart";
-part "play_pause_control.dart";
-part "track_label_animation.dart";
-
-final console = DebugPrint().register(DebugComponent.controlsPage);
+part of controls_page;
 
 class ControlsPage extends StatefulWidget {
   final AnimationController parentController;
@@ -51,6 +25,7 @@ enum ActiveControlEnum {
 
 class _ControlsPageState extends State<ControlsPage>
     with TickerProviderStateMixin {
+  // ignore: non_constant_identifier_names
   late final AnimationController _3dPlaneAnimationController;
 
   /// Property responsible for tracking if Overlay
@@ -185,6 +160,11 @@ class _ControlsPageState extends State<ControlsPage>
         // console.log("Unmount of listeners");
         _3dPlaneAnimationController.removeListener(listener);
         _3dPlaneAnimationController.removeStatusListener(statusListener);
+
+        /// NOTE: The reset is done last, so that the listeners above would not
+        ///       run state change on x/yRotation values.
+        /// TODO: On refactor can be done is on line 203, where forward is called,
+        ///       the .then((_) {...}) can reset and remove listeners mentioned above.
         _3dPlaneAnimationController.reset();
       }
     }
@@ -433,9 +413,10 @@ class _ControlsPageState extends State<ControlsPage>
         child: Stack(
           children: [
             GestureDetector(
-                onTapDown: (e) => _tiltOnTap(e, screenSize),
-                onTapUp: (e) => _restoreTilt(),
-                child: const Backdrop()),
+              onTapDown: (e) => _tiltOnTap(e, screenSize),
+              onTapUp: (e) => _restoreTilt(),
+              child: const Backdrop(),
+            ),
             const VolumeLabel(
               topPosition: 40,
               leftPosition: 0,

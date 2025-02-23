@@ -1,12 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:zune_ui/database/index.dart';
+import 'package:zune_ui/enums/index.dart';
 import 'package:zune_ui/messages/all.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 final console = DebugPrint().register(DebugComponent.globalState);
-
-
 
 class GlobalModalState extends ChangeNotifier {
   // For Pinned/New/Recently items allow up to 8 items in render
@@ -19,10 +18,10 @@ class GlobalModalState extends ChangeNotifier {
   List<TrackModel> _currentSongList = [];
   int _currentSongIndex = 0;
 
-  /// Property used to track the most recent choice between
-  /// previous and next track selection. Next track is marked as 1,
-  /// whereas next track is marked with -1. The 0 value stands as default and
-  /// is useful inside CurrentlyPlayingLabel widget to default to forward animation
+  /// NOTE: Property used to track the most recent choice between
+  ///       previous and next track selection. Next track is marked as 1,
+  ///       whereas next track is marked with -1. The 0 value stands as default and
+  ///       is useful inside CurrentlyPlayingLabel widget to default to forward animation
   int _trackChangeDelta = 0;
   int get trackChangeDelta => _trackChangeDelta;
 
@@ -32,6 +31,7 @@ class GlobalModalState extends ChangeNotifier {
   int _volumeLevel = 0;
   int get volumeLevel => _volumeLevel;
 
+  List<AlbumModel> _allAlbums = [];
   List<AlbumModel> _newlyAddedItems = [];
   final List<AlbumModel> _pinnedItems = [];
   final List<AlbumModel> _recentlyPlayedItems = [];
@@ -42,15 +42,25 @@ class GlobalModalState extends ChangeNotifier {
       UnmodifiableListView(_newlyAddedItems);
   UnmodifiableListView<AlbumModel> get recentlyPlayedItems =>
       UnmodifiableListView(_recentlyPlayedItems);
+  UnmodifiableListView<AlbumModel> get allAlbums =>
+      UnmodifiableListView(_allAlbums);
+
+  MusicCategoryType _lastSelectedCategory = MusicCategoryType.albums;
+  MusicCategoryType get lastSelectedCategory => _lastSelectedCategory;
 
   GlobalModalState() {
     initializeStore();
   }
 
   Future<void> initializeStore() async {
-    // TODO: On intial load of DB and music this will error:
-    final temp = await AlbumModel.readAll();
-    _newlyAddedItems = temp.length > _maxAllowedItemsCount ? temp.slice(0, _maxAllowedItemsCount) : temp;
+    final allAlbums = await AlbumModel.readAll();
+    _allAlbums = allAlbums;
+    _allAlbums.sort((a, b) => a.album_name.compareTo(b.album_name));
+
+    /// TODO: Need to actually track newly added tracks
+    _newlyAddedItems = allAlbums.length > _maxAllowedItemsCount
+        ? allAlbums.slice(0, _maxAllowedItemsCount)
+        : allAlbums;
 
     VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
         .sendSignalToRust();
@@ -194,5 +204,17 @@ class GlobalModalState extends ChangeNotifier {
       }
     }
     return nextPrevIndex;
+  }
+
+  void setLastSelectedCategory(MusicCategoryType category) {
+    _lastSelectedCategory = category;
+    notifyListeners();
+  }
+
+  void navigateToCategory(int delta) {
+    final nextCategory =
+        MusicCategoryType.getNextPrevCategory(delta, _lastSelectedCategory);
+    _lastSelectedCategory = nextCategory;
+    notifyListeners();
   }
 }

@@ -5,6 +5,7 @@
 </div>
 <div style="text-align: center;">
   <img src="demo.gif" alt="Demo GIF" />
+  <img src="demo_2.gif" alt="Demo GIF" />
 </div>
 
 ## Getting Started
@@ -28,6 +29,7 @@ flutter doctor
 ```
 
 Setup Rust:
+
 ```bash
 // Mac OS
 brew install rustup
@@ -36,11 +38,14 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 // Setup
 rustup-init
 ```
+
 Install CLI tool Rust Inside Flutter:
+
 ```bash
 cargo update
 cargo install rinf
 ```
+
 Messages sent between Dart and Rust are implemented using Protobuf.
 If you have newly cloned the project repository
 or made changes to the `.proto` files in the `./messages` directory,
@@ -49,8 +54,8 @@ run the following command:
 ```bash
 rinf message
 ```
-Add music files in `/zune-org/music_dir`
 
+Add music files in `/zune-org/music_dir`
 
 - Mac OS
 

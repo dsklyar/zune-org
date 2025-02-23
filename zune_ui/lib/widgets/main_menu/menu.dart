@@ -11,16 +11,9 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
   @override
   void initState() {
     super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
   }
 
   @override
@@ -35,35 +28,34 @@ class _MainMenuState extends State<MainMenu>
           scrollDirection: Axis.vertical,
           children: [
             const SizedBox(
-              height: 42,
+              height: 64,
+            ),
+            Selector<GlobalModalState, MusicCategoryType>(
+              selector: (context, state) => state.lastSelectedCategory,
+              builder: (context, selectedCategory, child) => MenuItem(
+                text: 'music',
+                onTapHandler: (Offset target) => context.go(
+                  ApplicationRoute.music.route,
+                  extra: target,
+                ),
+                hasIcon: true,
+                subTextItems: MusicCategoryType.categoriesStartingAt(
+                  type: selectedCategory,
+                ),
+              ),
             ),
             MenuItem(
-              text: 'music',
-              onTapHandler: (Offset target) => context.go(
-                ApplicationRoute.music.route,
-                extra: target,
-              ),
-              hasIcon: true,
-              subTextItems: const [
-                'songs',
-                'genres',
-                'albums',
-                'artists',
-                'playlists',
-              ],
-            ),
-            const MenuItem(
               text: 'videos',
             ),
-            const MenuItem(text: 'pictures', subTextItems: [
+            MenuItem(text: 'pictures', subTextItems: const [
               'by folder',
               'by date',
             ]),
-            const MenuItem(text: 'radio'),
-            // const MenuItem(text: 'marketplace'),
-            const MenuItem(text: 'social'),
-            const MenuItem(text: 'internet'),
-            const MenuItem(text: 'settings'),
+            MenuItem(text: 'radio'),
+            //  MenuItem(text: 'marketplace'),
+            MenuItem(text: 'social'),
+            MenuItem(text: 'internet'),
+            MenuItem(text: 'settings'),
             const SizedBox(
               height: 64,
             )

@@ -6,6 +6,7 @@ enum DebugComponent {
   playerPage("Player Page"),
   splashPage("Splash Page"),
   overlaysPage("Overlays Page"),
+  searchIndexPage("Search Index Page"),
   database("SQLite Database"),
   globalState("Global State"),
   timing("Timing Components");
