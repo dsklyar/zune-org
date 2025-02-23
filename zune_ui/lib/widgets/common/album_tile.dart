@@ -134,6 +134,15 @@ class SquareTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    /// NOTE: Considering this error:
+    ///
+    /// Image MemoryImage(_UnmodifiableUint8ArrayView#fd2df) has a display size of 144×144 but a decode size of 500×500,
+    /// which uses an additional 1194KB (assuming a device pixel ratio of 2.0).
+    /// Consider resizing the asset ahead of time, supplying a cacheWidth parameter of 144, a cacheHeight parameter of 144, or using a ResizeImage.
+
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio.round();
+    final cacheSize = size.round() * devicePixelRatio;
+
     return Container(
       height: size,
       width: size,
@@ -154,7 +163,12 @@ class SquareTile extends StatelessWidget {
       child: Stack(
         alignment: alignment!,
         children: [
-          if (background != null) Image.memory(background!),
+          if (background != null)
+            Image.memory(
+              background!,
+              cacheHeight: cacheSize,
+              cacheWidth: cacheSize,
+            ),
           if (text != null)
             Container(
               padding: const EdgeInsets.all(4.0),

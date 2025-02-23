@@ -40,12 +40,13 @@ final _router = GoRouter(
         GoRoute(
           path: ApplicationRoute.music.route,
           builder: (context, state) {
-            if (state.extra == null) {
-              return const SizedBox.shrink();
-            }
             return MusicPageWrapped(
               size: initialSize,
-              startingOffset: state.extra as Offset,
+
+              /// NOTE: For some reason Flutter inspector re-runs these routes
+              ///       and the extra returns as null which before returned shrink box.
+              ///       In future it is better to provide a default like so:
+              startingOffset: state.extra as Offset? ?? Offset.zero,
             );
           },
         ),
