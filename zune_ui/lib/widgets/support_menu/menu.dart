@@ -8,6 +8,14 @@ class SupportMenu extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    /// TODO: Need to figure out a way to specify what onclick does to other interactive items
+    onItemClickHandler(GlobalModalState state) => (InteractiveItem item) {
+          if (item is AlbumModel) {
+            state.updateCurrentlyPlaying(item);
+            context.go(ApplicationRoute.player.route);
+          }
+        };
+
     return Container(
       // decoration: const BoxDecoration(
       //   color: Color.fromARGB(121, 238, 3, 81),
@@ -40,10 +48,7 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "Pins",
                     items: state.pinnedItems,
-                    onClickHandler: (AlbumModel model) {
-                      state.updateCurrentlyPlaying(model);
-                      context.go(ApplicationRoute.player.route);
-                    },
+                    onClickHandler: onItemClickHandler(state),
                   );
                 },
               ),
@@ -52,10 +57,7 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "History",
                     items: state.recentlyPlayedItems,
-                    onClickHandler: (AlbumModel model) {
-                      state.updateCurrentlyPlaying(model);
-                      context.go(ApplicationRoute.player.route);
-                    },
+                    onClickHandler: onItemClickHandler(state),
                   );
                 },
               ),
@@ -64,10 +66,7 @@ class SupportMenu extends StatelessWidget {
                   return ItemsColumn(
                     title: "New",
                     items: state.newlyAddedItems,
-                    onClickHandler: (AlbumModel model) {
-                      state.updateCurrentlyPlaying(model);
-                      context.go(ApplicationRoute.player.route);
-                    },
+                    onClickHandler: onItemClickHandler(state),
                     isLast: true,
                   );
                 },
