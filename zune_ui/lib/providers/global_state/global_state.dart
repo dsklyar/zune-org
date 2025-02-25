@@ -7,13 +7,14 @@ import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 final console = DebugPrint().register(DebugComponent.globalState);
 
+typedef CurrentlyPlaying = ({AlbumModel album, TrackModel song})?;
+
 class GlobalModalState extends ChangeNotifier {
   // For Pinned/New/Recently items allow up to 8 items in render
   static const int _maxAllowedItemsCount = 20;
 
-  ({AlbumModel album, TrackModel song})? _currentlyPlaying;
-  ({AlbumModel album, TrackModel song})? get currentlyPlaying =>
-      _currentlyPlaying;
+  CurrentlyPlaying _currentlyPlaying;
+  CurrentlyPlaying get currentlyPlaying => _currentlyPlaying;
 
   List<TrackModel> _currentSongList = [];
   int _currentSongIndex = 0;
@@ -33,14 +34,14 @@ class GlobalModalState extends ChangeNotifier {
 
   List<AlbumModel> _allAlbums = [];
   List<AlbumModel> _newlyAddedItems = [];
-  final List<AlbumModel> _pinnedItems = [];
-  final List<AlbumModel> _recentlyPlayedItems = [];
+  final List<InteractiveItem> _pinnedItems = [];
+  final List<InteractiveItem> _recentlyPlayedItems = [];
 
-  UnmodifiableListView<AlbumModel> get pinnedItems =>
+  UnmodifiableListView<InteractiveItem> get pinnedItems =>
       UnmodifiableListView(_pinnedItems);
   UnmodifiableListView<AlbumModel> get newlyAddedItems =>
       UnmodifiableListView(_newlyAddedItems);
-  UnmodifiableListView<AlbumModel> get recentlyPlayedItems =>
+  UnmodifiableListView<InteractiveItem> get recentlyPlayedItems =>
       UnmodifiableListView(_recentlyPlayedItems);
   UnmodifiableListView<AlbumModel> get allAlbums =>
       UnmodifiableListView(_allAlbums);

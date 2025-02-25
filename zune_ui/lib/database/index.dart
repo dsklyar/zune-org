@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:zune_ui/database/metadata.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
@@ -45,7 +46,11 @@ class ZuneDatabase {
     return await openDatabase(
       path,
       version: 1,
-      onCreate: _createDatabase,
+      onCreate: (db, version) async {
+        final batch = db.batch();
+        _createDatabaseV1(batch);
+        await batch.commit();
+      },
     );
   }
 
@@ -54,30 +59,40 @@ class ZuneDatabase {
     db.close();
   }
 
-  Future<void> _createDatabase(Database db, int version) async {
-    /// TODO: Reference images in a separate table and load them on getAll
-    console.log("Creating tables in _createDatabase", customTags: ["DATABASE"]);
+  Future<void> _createDatabaseV1(Batch batch) async {
+    console.log(
+      "Creating tables in _createDatabaseV1",
+      customTags: [
+        "DATABASE",
+      ],
+    );
 
-    /// TODO: It seems that on MacOS I need to split these scripts into separate calls.
-    ///       Otherwise, the AlbumSummary view is not created.
-    await db.execute(TrackModel.createModelScript());
-    await db.execute(TrackImageModel.createModelScript());
-    return await db.execute(AlbumModel.createModelScript());
+    batch.execute(ArtistModel.createModelScript());
+    batch.execute(TrackModel.createModelScript());
+    batch.execute(TrackImageModel.createModelScript());
+    batch.execute(AlbumModel.createModelScript());
   }
 }
 
 class TrackImageModel {
   static String tableName = "TrackImages";
+  static List<String> columns = [
+    "image_id",
+    "album_name",
+    "artist_id",
+    "image_type",
+    "image_blob",
+  ];
   final int? image_id;
   final String? album_name;
-  final String? artist_name;
+  final int? artist_id;
   final int? image_type;
   final Uint8List? image_blob;
 
   TrackImageModel(
     this.image_id,
     this.album_name,
-    this.artist_name,
+    this.artist_id,
     this.image_type,
     this.image_blob,
   );
@@ -86,28 +101,42 @@ class TrackImageModel {
     return ('''
         CREATE TABLE "TrackImages" (
             "image_id" INTEGER NOT NULL UNIQUE,
-            "artist_name" TEXT NOT NULL,
+            "artist_id" INTEGER NOT NULL,
             "album_name" TEXT NOT NULL,
             "image_type" INTEGER DEFAULT 0,
             "image_blob" BLOB,
             PRIMARY KEY("image_id" AUTOINCREMENT),
-            FOREIGN KEY("artist_name", "album_name") REFERENCES "Tracks"("artist_name", "album_name") ON DELETE CASCADE
-            UNIQUE ("artist_name", "album_name", "image_type")
+            FOREIGN KEY("artist_id", "album_name") REFERENCES "Tracks"("artist_id", "album_name") ON DELETE CASCADE
+            UNIQUE ("artist_id", "album_name", "image_type")
         );
       ''');
   }
 
-  static Future<TrackImageModel> create(TrackImageModel trackImage) async {
-    final ZuneDatabase zune = ZuneDatabase.instance;
-    final db = await zune.database;
-    final image_id =
-        await db.insert(TrackImageModel.tableName, trackImage.toJson());
-    return trackImage.copy(image_id: image_id);
+  static TrackImageModel fromJson(Map<String, Object?> json) => TrackImageModel(
+        json[columns[0]] as int?,
+        json[columns[1]] as String?,
+        json[columns[2]] as int?,
+        json[columns[3]] as int?,
+        json[columns[3]] as Uint8List?,
+      );
+
+  static Future<TrackImageModel> create(
+    TrackImageModel toCreate, {
+    Transaction? txn,
+  }) async {
+    DatabaseExecutor operator = txn ?? await ZuneDatabase.instance.database;
+
+    final image_id = await operator.insert(
+      TrackImageModel.tableName,
+      toCreate.toJson(),
+      conflictAlgorithm: ConflictAlgorithm.ignore,
+    );
+    return toCreate.copy(image_id: image_id);
   }
 
   Map<String, Object?> toJson() => {
         "image_id": image_id,
-        "artist_name": artist_name,
+        "artist_id": artist_id,
         "album_name": album_name,
         "image_type": image_type,
         "image_blob": image_blob,
@@ -115,41 +144,44 @@ class TrackImageModel {
 
   TrackImageModel copy({
     int? image_id,
-    String? artist_name,
+    int? artist_id,
     String? album_name,
     int? image_type,
     Uint8List? image_blob,
   }) =>
       TrackImageModel(
         image_id ?? this.image_id,
-        artist_name ?? this.artist_name,
         album_name ?? this.album_name,
+        artist_id ?? this.artist_id,
         image_type ?? this.image_type,
         image_blob ?? this.image_blob,
       );
 }
 
-class TrackModel {
+class TrackModel extends PlayableItem {
   static String tableName = "Tracks";
   static List<String> columns = [
     "track_id",
     "album_name",
-    "artist_name",
+    "artist_id",
     "duration",
     "name",
     "path_to_filename",
   ];
   final int? track_id;
   final String? album_name;
-  final String? artist_name;
+  final int? artist_id;
   final int? duration;
   final String name;
   final String path_to_filename;
 
+  /// NON-TABLE Properties
+  String artist_name = ArtistModel.defaultArtist;
+
   TrackModel(
     this.track_id,
     this.album_name,
-    this.artist_name,
+    this.artist_id,
     this.duration,
     this.name,
     this.path_to_filename,
@@ -160,26 +192,30 @@ class TrackModel {
           CREATE TABLE "Tracks" (
             "track_id"	INTEGER NOT NULL UNIQUE,
             "album_name"	TEXT DEFAULT 'unknown album',
-            "artist_name"	TEXT DEFAULT 'unknown artist',
+            "artist_id" INTEGER NOT NULL,
             "duration"  INTEGER DEFAULT 0,
             "name"	TEXT NOT NULL,
             "path_to_filename"	TEXT NOT NULL,
             PRIMARY KEY("track_id" AUTOINCREMENT)
+            FOREIGN KEY("artist_id") REFERENCES "Artists"("artist_id")
           );
       ''');
   }
 
-  static Future<TrackModel> create(TrackModel track) async {
-    final ZuneDatabase zune = ZuneDatabase.instance;
-    final db = await zune.database;
-    final track_id = await db.insert(TrackModel.tableName, track.toJson());
-    return track.copy(track_id: track_id);
+  static Future<TrackModel> create(
+    TrackModel toCreate, {
+    Transaction? txn,
+  }) async {
+    DatabaseExecutor operator = txn ?? await ZuneDatabase.instance.database;
+    final track_id =
+        await operator.insert(TrackModel.tableName, toCreate.toJson());
+    return toCreate.copy(track_id: track_id);
   }
 
   Map<String, Object?> toJson() => {
         "track_id": track_id,
         "album_name": album_name,
-        "artist_name": artist_name,
+        "artist_id": artist_id,
         "duration": duration,
         "name": name,
         "path_to_filename": path_to_filename,
@@ -188,7 +224,7 @@ class TrackModel {
   TrackModel copy({
     int? track_id,
     String? album_name,
-    String? artist_name,
+    int? artist_id,
     int? duration,
     String? name,
     String? path_to_filename,
@@ -196,7 +232,7 @@ class TrackModel {
       TrackModel(
         track_id ?? this.track_id,
         album_name ?? this.album_name,
-        artist_name ?? this.artist_name,
+        artist_id ?? this.artist_id,
         duration ?? this.duration,
         name ?? this.name,
         path_to_filename ?? this.path_to_filename,
@@ -205,7 +241,7 @@ class TrackModel {
   static TrackModel fromJson(Map<String, Object?> json) => TrackModel(
         json[columns[0]] as int?,
         json[columns[1]] as String?,
-        json[columns[2]] as String?,
+        json[columns[2]] as int?,
         json[columns[3]] as int?,
         json[columns[4]] as String,
         json[columns[5]] as String,
@@ -228,9 +264,27 @@ class TrackModel {
       throw Exception('ID $id not found');
     }
   }
+
+  @override
+  Future<void> addToQuickplay() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to add $name song to Pins");
+  }
+
+  @override
+  Future<void> removeFromQuickplay() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to remove $name song to Pins");
+  }
+
+  @override
+  Future<void> addToNowPlaying() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to add $name song to Now Playing Playlist");
+  }
 }
 
-class AlbumModel {
+class AlbumModel extends PlayableItem {
   static String tableName = "AlbumSummary";
   static List<String> columns = [
     "album_name",
@@ -264,31 +318,35 @@ class AlbumModel {
 
   static String createModelScript() {
     return ('''
-          CREATE VIEW "AlbumSummary" AS
+          CREATE VIEW "${AlbumModel.tableName}" AS
           SELECT 
               tracks.album_name AS album_name,
-              tracks.artist_name AS artist_name,
+              artists.artist_name AS artist_name,
               COUNT(tracks.track_id) AS track_count,
               SUM(tracks.duration) AS total_duration,
               ai1.image_blob AS album_cover,
               ai2.image_blob AS album_illustration,
               GROUP_CONCAT(tracks.track_id) AS track_ids
           FROM 
-              Tracks tracks
+            ${TrackModel.tableName} tracks
           LEFT JOIN
-            TrackImages ai1
+            ${ArtistModel.tableName} artists
+          ON
+            tracks.artist_id = artists.artist_id
+          LEFT JOIN
+            ${TrackImageModel.tableName} ai1
           ON
             tracks.album_name = ai1.album_name AND
-            tracks.artist_name = ai1.artist_name AND
+            tracks.artist_id = ai1.artist_id AND
             ai1.image_type = 3
           LEFT JOIN
-            TrackImages ai2
+            ${TrackImageModel.tableName} ai2
           ON
             tracks.album_name = ai2.album_name AND
-            tracks.artist_name = ai2.artist_name AND
+            tracks.artist_id = ai2.artist_id AND
             ai2.image_type = 18
           GROUP BY 
-              tracks.album_name, tracks.artist_name;
+              tracks.album_name, artists.artist_name;
       ''');
   }
 
@@ -357,13 +415,17 @@ class AlbumModel {
       SELECT
           *
       FROM
-          Tracks
+          ${TrackModel.tableName}
       WHERE
           track_id IN (${track_ids.join(", ")});
     ''');
 
     if (maps.isNotEmpty) {
-      tracks = maps.map((json) => TrackModel.fromJson(json)).toList();
+      tracks = maps.map((json) {
+        final track = TrackModel.fromJson(json);
+        track.artist_name = artist_name;
+        return track;
+      }).toList();
       return tracks;
     } else {
       throw Exception(
@@ -384,38 +446,87 @@ class AlbumModel {
         )
         .toList();
   }
+
+  @override
+  Future<void> addToQuickplay() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to add $album_name song to Pins");
+  }
+
+  @override
+  Future<void> removeFromQuickplay() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to remove $album_name song to Pins");
+  }
+
+  @override
+  Future<void> addToNowPlaying() async {
+    Future.delayed(const Duration(seconds: 1));
+    console.log("Pretend to add $album_name song to Now Playing Playlist");
+  }
 }
 
-class ArtistModel {
+class ArtistModel extends PlayableItem {
   static String tableName = "Artists";
-  static List<String> columns = ["artist_id", "name"];
+  static List<String> columns = ["artist_id", "artist_name"];
+  static String defaultArtist = "unknown artist";
   final int? artist_id;
-  final String name;
+  final String artist_name;
 
-  ArtistModel(this.artist_id, this.name);
+  ArtistModel(this.artist_id, this.artist_name);
 
-  Future<ArtistModel> create(ArtistModel artist) async {
-    final ZuneDatabase zune = ZuneDatabase.instance;
-    final db = await zune.database;
-    final artist_id = await db.insert(ArtistModel.tableName, artist.toJson());
-    return artist.copy(artist_id: artist_id);
+  static String createModelScript() {
+    return ('''
+          CREATE TABLE "Artists" (
+            "artist_id"	INTEGER NOT NULL UNIQUE,
+            "artist_name"	TEXT DEFAULT '$defaultArtist' UNIQUE,
+            PRIMARY KEY("artist_id" AUTOINCREMENT)
+          );
+      ''');
+  }
+
+  static Future<ArtistModel> create(
+    ArtistModel toCreate, {
+    Transaction? txn,
+  }) async {
+    DatabaseExecutor operator = txn ?? await ZuneDatabase.instance.database;
+
+    final queryResult = await operator.query(
+      ArtistModel.tableName,
+      columns: ArtistModel.columns,
+      where: '${columns[1]} = ?',
+      whereArgs: [toCreate.artist_name],
+    );
+
+    final foundEntry = queryResult.firstWhereOrNull((item) =>
+        ArtistModel.fromJson(item).artist_name == toCreate.artist_name);
+
+    int artist_id = foundEntry != null
+        ? ArtistModel.fromJson(foundEntry).artist_id!
+        : await operator.insert(
+            ArtistModel.tableName,
+            toCreate.toJson(),
+          );
+
+    final artistModel = toCreate.copy(artist_id: artist_id);
+    return artistModel;
   }
 
   Map<String, Object?> toJson() => {
         "artist_id": artist_id,
-        "name": name,
+        "artist_name": artist_name,
       };
 
   ArtistModel copy({
     int? artist_id,
-    String? name,
+    String? artist_name,
   }) =>
       ArtistModel(
         artist_id ?? this.artist_id,
-        name ?? this.name,
+        artist_name ?? this.artist_name,
       );
 
-  ArtistModel fromJson(Map<String, Object?> json) => ArtistModel(
+  static ArtistModel fromJson(Map<String, Object?> json) => ArtistModel(
         json[columns[0]] as int?,
         json[columns[1]] as String,
       );
@@ -437,48 +548,94 @@ class ArtistModel {
       throw Exception('ID $id not found');
     }
   }
+
+  @override
+  Future<void> addToQuickplay() async {
+    console.log("Pretend to add $artist_name song to Pins");
+  }
+
+  @override
+  Future<void> removeFromQuickplay() async {
+    console.log("Pretend to remove $artist_name song to Pins");
+  }
+
+  @override
+  Future<void> addToNowPlaying() async {
+    console.log("Pretend to add $artist_name song to Now Playing Playlist");
+  }
 }
 
 class Initializer {
   static Future<void> populateDatabase() async {
-    var db = await ZuneDatabase.instance.database;
+    if (await Initializer.isAlreadyInitialized()) {
+      console.log("Skipping table population.");
+      return;
+    }
+
+    final files = Metadata().files;
+    Database db = await ZuneDatabase.instance.database;
+
+    try {
+      await db.transaction(
+        (txn) async {
+          for (var file in files) {
+            final artist = await ArtistModel.create(
+              ArtistModel(null, file.artist ?? ArtistModel.defaultArtist),
+              txn: txn,
+            );
+
+            final track = await TrackModel.create(
+              TrackModel(
+                null,
+                file.album,
+                artist.artist_id,
+                file.duration?.inSeconds,
+                file.title ?? "EMPTY",
+                file.file.path,
+              ),
+              txn: txn,
+            );
+
+            for (var image in file.pictures) {
+              await TrackImageModel.create(
+                TrackImageModel(
+                  null,
+                  track.album_name,
+                  artist.artist_id,
+                  image.pictureType.index,
+                  image.bytes,
+                ),
+                txn: txn,
+              );
+            }
+          }
+        },
+      );
+
+      console.log("Tables Created, Done working DB", customTags: ["DATABASE"]);
+    } catch (e, st) {
+      console.error("Database initialization failed: $e, $st");
+    }
+  }
+
+  static Future<bool> isAlreadyInitialized() async {
+    Database db = await ZuneDatabase.instance.database;
+
     var queryResult = await db.rawQuery('''
         SELECT COUNT(*) FROM ${TrackModel.tableName};
     ''');
-    var count = queryResult.first["COUNT(*)"] as int;
-    console.log("Should fill tables: Is count > 0?  ${count > 0}",
-        customTags: ["DATABASE"]);
 
-    if (count > 0) return;
+    int count = queryResult.first["COUNT(*)"] as int;
 
-    final files = Metadata("music_dir").files;
-    for (var file in files) {
-      final track = await TrackModel.create(
-        TrackModel(
-          null,
-          file.album,
-          file.artist,
-          file.duration?.inSeconds,
-          file.title ?? "EMPTY",
-          file.file.path,
-        ),
-      );
-      if (file.pictures.length > 1) {
-        console.log("IMAGES found ${file.pictures.length} for ${file.album}");
-      }
-      for (var image in file.pictures) {
-        TrackImageModel.create(
-          TrackImageModel(
-            null,
-            track.album_name,
-            track.artist_name,
-            image.pictureType.index,
-            image.bytes,
-          ),
-        );
-      }
-    }
-
-    console.log("Tables Created, Done working DB", customTags: ["DATABASE"]);
+    return count > 0;
   }
+}
+
+abstract class InteractiveItem {
+  Future<void> addToQuickplay();
+  Future<void> removeFromQuickplay();
+}
+
+abstract class PlayableItem extends InteractiveItem {
+  Future<void> addToNowPlaying();
 }

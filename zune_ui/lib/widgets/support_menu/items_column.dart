@@ -2,8 +2,8 @@ part of support_menu;
 
 class ItemsColumn extends StatelessWidget {
   final String title;
-  final UnmodifiableListView<AlbumModel> items;
-  final void Function(AlbumModel) onClickHandler;
+  final UnmodifiableListView<InteractiveItem> items;
+  final void Function(InteractiveItem) onClickHandler;
   final bool isLast;
 
   const ItemsColumn({
@@ -31,14 +31,17 @@ class ItemsColumn extends StatelessWidget {
           spacing: 4.0,
           runSpacing: 4.0,
           direction: Axis.horizontal,
-          children: items
-              .map(
-                (item) => AlbumTile(
+          children: items.map(
+            (item) {
+              if (item is AlbumModel) {
+                return AlbumTile(
                   album: item,
                   onAlbumClick: onClickHandler,
-                ),
-              )
-              .toList(),
+                );
+              }
+              return SizedBox.shrink();
+            },
+          ).toList(),
         ),
         const SizedBox(height: 32),
         if (isLast) const SizedBox(height: 64),
