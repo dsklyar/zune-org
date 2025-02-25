@@ -1,4 +1,8 @@
 {
   "cmake.configureOnOpen": false,
-  "cSpell.words": ["AUTOINCREMENT", "zune"]
+  "cSpell.words": [
+    "AUTOINCREMENT",
+    "Quickplay",
+    "zune"
+  ]
 }
