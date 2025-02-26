@@ -145,7 +145,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
-                                    state.currentlyPlaying!.song.name,
+                                    state.currentlyPlaying!.song.track_name,
                                     style: Styles.songTitle,
                                   ),
                                 ),
@@ -166,7 +166,7 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
                                           children: state
                                               .getNext3Songs()
                                               .map((e) => Text(
-                                                    e.name,
+                                                    e.track_name,
                                                     style: Styles.listItem,
                                                   ))
                                               .toList());
