@@ -29,8 +29,12 @@ class ZuneDatabase {
       databaseFactory = databaseFactoryFfi;
     }
 
-    final databasePath = await getDatabasesPath();
-    final path = '$databasePath/zune.db';
+    /// NOTE: Creating the directory if it doesn't exist
+    ///       One can't simply create folders in OS, so using this for now:
+    ///       -> https://pub.dev/packages/path_provider
+    final appDir = await getApplicationDocumentsDirectory();
+    final path = '${appDir.path}/zune.db';
+
     console.log("Database $path", customTags: ["DATABASE"]);
 
     return await openDatabase(
