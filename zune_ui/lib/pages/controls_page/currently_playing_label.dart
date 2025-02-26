@@ -22,7 +22,7 @@ class CurrentlyPlayingLabel extends StatelessWidget {
                   TrackLabelAnimation(
                     forward: state.delta >= 0,
                     child: Text(
-                      state.track!.artist_name!.toUpperCase(),
+                      state.track!.artist_name.toUpperCase(),
                       style: Styles.albumArtist,
                       overflow: TextOverflow.visible,
                       softWrap: false,
@@ -31,7 +31,7 @@ class CurrentlyPlayingLabel extends StatelessWidget {
                   TrackLabelAnimation(
                     forward: state.delta >= 0,
                     child: Text(
-                      state.track!.name,
+                      state.track!.track_name,
                       style: Styles.songTitle,
                       overflow: TextOverflow.visible,
                       softWrap: false,
