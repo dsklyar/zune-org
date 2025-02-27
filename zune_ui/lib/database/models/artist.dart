@@ -96,6 +96,21 @@ class ArtistModel extends PlayableItem {
     }
   }
 
+  static Future<List<ArtistModel>> readAll() async {
+    final ZuneDatabase zune = ZuneDatabase.instance;
+
+    final db = await zune.database;
+    final result = await db.query(ArtistModel.tableName,
+        orderBy:
+            '${ArtistModel.tableName}.${ArtistModel.columns.artist_id} DESC');
+
+    return result
+        .map(
+          (json) => ArtistModel.fromJson(json),
+        )
+        .toList();
+  }
+
   @override
   Future<void> addToQuickplay() async {
     console.log("Pretend to add $artist_name artist to Pins");

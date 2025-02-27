@@ -2,8 +2,8 @@
 
 part of database;
 
-class AlbumSummaryModelColumns {
-  const AlbumSummaryModelColumns();
+class AlbumModelColumns {
+  const AlbumModelColumns();
   String get album_name => "album_name";
   String get artist_name => "artist_name";
   String get track_count => "track_count";
@@ -22,7 +22,7 @@ class AlbumSummaryModelColumns {
       ];
 }
 
-class AlbumModelSummary extends PlayableItem {
+class AlbumModel extends PlayableItem {
   static String tableName = "AlbumSummary";
   static const AlbumModelColumns columns = AlbumModelColumns();
 
@@ -37,7 +37,7 @@ class AlbumModelSummary extends PlayableItem {
   /// NON-TABLE Properties
   List<TrackModel> tracks = [];
 
-  AlbumModelSummary({
+  AlbumModel({
     this.album_name = "",
     this.artist_name = "",
     this.track_count = 0,
@@ -49,7 +49,7 @@ class AlbumModelSummary extends PlayableItem {
 
   static String createModelScript() {
     return ('''
-          CREATE VIEW "${AlbumModelSummary.tableName}" AS
+          CREATE VIEW "${AlbumModel.tableName}" AS
           SELECT 
               tracks.${TrackModel.columns.album_name} AS album_name,
               artists.artist_name AS artist_name,
@@ -91,7 +91,7 @@ class AlbumModelSummary extends PlayableItem {
         columns.track_ids: track_ids.join(",")
       };
 
-  AlbumModelSummary copy({
+  AlbumModel copy({
     String? album_name,
     String? artist_name,
     int? track_count,
@@ -100,7 +100,7 @@ class AlbumModelSummary extends PlayableItem {
     Uint8List? album_illustration,
     List<int>? track_ids,
   }) =>
-      AlbumModelSummary(
+      AlbumModel(
         album_name: album_name ?? this.album_name,
         artist_name: artist_name ?? this.artist_name,
         track_count: track_count ?? this.track_count,
@@ -110,8 +110,7 @@ class AlbumModelSummary extends PlayableItem {
         track_ids: track_ids ?? this.track_ids,
       );
 
-  static AlbumModelSummary fromJson(Map<String, Object?> json) =>
-      AlbumModelSummary(
+  static AlbumModel fromJson(Map<String, Object?> json) => AlbumModel(
         album_name: json[columns.album_name] as String,
         artist_name: json[columns.artist_name] as String,
         track_count: json[columns.track_count] as int,
@@ -124,14 +123,13 @@ class AlbumModelSummary extends PlayableItem {
             .toList(),
       );
 
-  static Future<AlbumModelSummary> read(
-      String album_name, String artist_name) async {
+  static Future<AlbumModel> read(String album_name, String artist_name) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
     final maps = await db.query(
-      AlbumModelSummary.tableName,
-      columns: AlbumModelSummary.columns.values,
+      AlbumModel.tableName,
+      columns: AlbumModel.columns.values,
       where: '${columns.album_name} = ? AND ${columns.artist_name} = ?',
       whereArgs: [album_name, artist_name],
     );
@@ -169,17 +167,17 @@ class AlbumModelSummary extends PlayableItem {
     }
   }
 
-  static Future<List<AlbumModelSummary>> readAll() async {
+  static Future<List<AlbumModel>> readAll() async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
-    final result = await db.query(AlbumModelSummary.tableName,
+    final result = await db.query(AlbumModel.tableName,
         orderBy:
-            '${AlbumModelSummary.tableName}.${AlbumModelSummary.columns.album_name} DESC');
+            '${AlbumModel.tableName}.${AlbumModel.columns.album_name} DESC');
 
     return result
         .map(
-          (json) => AlbumModelSummary.fromJson(json),
+          (json) => AlbumModel.fromJson(json),
         )
         .toList();
   }

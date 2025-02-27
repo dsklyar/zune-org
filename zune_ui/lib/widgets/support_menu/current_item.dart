@@ -1,9 +1,9 @@
 part of support_menu;
 
 class CurrentItem extends StatelessWidget {
-  final AlbumModel? album;
+  final AlbumModelSummary? album;
   final bool isPlaying;
-  final void Function(AlbumModel) onClickHandler;
+  final void Function(AlbumModelSummary) onClickHandler;
 
   const CurrentItem({
     super.key,

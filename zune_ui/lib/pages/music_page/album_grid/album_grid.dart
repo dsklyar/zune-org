@@ -48,9 +48,9 @@ String _getGroupKey(String albumName) {
   return groupKey;
 }
 
-List<({String? groupKey, AlbumModel? album})> _generateAlbumGroups(
-    List<AlbumModel> albums) {
-  final result = <({String? groupKey, AlbumModel? album})>[];
+List<({String? groupKey, AlbumModelSummary? album})> _generateAlbumGroups(
+    List<AlbumModelSummary> albums) {
+  final result = <({String? groupKey, AlbumModelSummary? album})>[];
 
   String? previousGroupKey;
   for (final album in albums) {
@@ -76,7 +76,7 @@ List<({String? groupKey, AlbumModel? album})> _generateAlbumGroups(
 class _AlbumsGridState extends State<AlbumsGrid> {
   @override
   Widget build(BuildContext context) {
-    return Selector<GlobalModalState, UnmodifiableListView<AlbumModel>>(
+    return Selector<GlobalModalState, UnmodifiableListView<AlbumModelSummary>>(
       selector: (context, state) => state.allAlbums,
       builder: (context, albums, child) {
         final albumGroups = _generateAlbumGroups(albums);
