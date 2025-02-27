@@ -23,8 +23,8 @@ class AlbumSummaryModelColumns {
 }
 
 class AlbumModelSummary extends PlayableItem {
-  static String tableName = "AlbumSummary";
-  static const AlbumModelColumns columns = AlbumModelColumns();
+  static String tableName = "AlbumModelSummary";
+  static const AlbumSummaryModelColumns columns = AlbumSummaryModelColumns();
 
   final String album_name;
   final String artist_name;
@@ -51,7 +51,7 @@ class AlbumModelSummary extends PlayableItem {
     return ('''
           CREATE VIEW "${AlbumModelSummary.tableName}" AS
           SELECT 
-              tracks.${TrackModel.columns.album_name} AS album_name,
+              albums.${AlbumModel.columns.album_name} AS album_name,
               artists.artist_name AS artist_name,
               COUNT(tracks.${TrackModel.columns.track_id}) AS track_count,
               SUM(tracks.${TrackModel.columns.track_duration}) AS total_duration,
@@ -65,19 +65,23 @@ class AlbumModelSummary extends PlayableItem {
           ON
             tracks.${TrackModel.columns.artist_id} = artists.${ArtistModel.columns.artist_id}
           LEFT JOIN
+            ${AlbumModel.tableName} albums
+          ON
+            tracks.${TrackModel.columns.album_id} = albums.${AlbumModel.columns.album_id}
+          LEFT JOIN
             ${TrackImageModel.tableName} ai1
           ON
-            tracks.${TrackModel.columns.album_name} = ai1.${TrackImageModel.columns.album_name} AND
+            tracks.${TrackModel.columns.album_id} = ai1.${TrackImageModel.columns.album_id} AND
             tracks.${TrackModel.columns.artist_id} = ai1.${TrackImageModel.columns.artist_id} AND
             ai1.${TrackImageModel.columns.image_type} = 3
           LEFT JOIN
             ${TrackImageModel.tableName} ai2
           ON
-            tracks.${TrackModel.columns.album_name} = ai2.${TrackImageModel.columns.album_name} AND
+            tracks.${TrackModel.columns.album_id} = ai2.${TrackImageModel.columns.album_id} AND
             tracks.${TrackModel.columns.artist_id} = ai2.${TrackImageModel.columns.artist_id} AND
             ai2.${TrackImageModel.columns.image_type} = 18
           GROUP BY 
-              tracks.${TrackModel.columns.album_name}, artists.${ArtistModel.columns.artist_name};
+              albums.${AlbumModel.columns.album_name}, artists.${ArtistModel.columns.artist_name};
       ''');
   }
 

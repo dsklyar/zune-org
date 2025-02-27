@@ -5,7 +5,10 @@ class ArtistModelColumns {
   const ArtistModelColumns();
   String get artist_id => "artist_id";
   String get artist_name => "artist_name";
-  List<String> get values => [artist_id, artist_name];
+  List<String> get values => [
+        artist_id,
+        artist_name,
+      ];
 }
 
 class ArtistModel extends PlayableItem {
@@ -45,8 +48,10 @@ class ArtistModel extends PlayableItem {
       whereArgs: [toCreate.artist_name],
     );
 
-    final foundEntry = queryResult.firstWhereOrNull((item) =>
-        ArtistModel.fromJson(item).artist_name == toCreate.artist_name);
+    final foundEntry = queryResult.isEmpty
+        ? null
+        : queryResult.firstWhereOrNull((item) =>
+            ArtistModel.fromJson(item).artist_name == toCreate.artist_name);
 
     int artist_id = foundEntry != null
         ? ArtistModel.fromJson(foundEntry).artist_id
@@ -100,9 +105,10 @@ class ArtistModel extends PlayableItem {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
-    final result = await db.query(ArtistModel.tableName,
-        orderBy:
-            '${ArtistModel.tableName}.${ArtistModel.columns.artist_id} DESC');
+    final result = await db.query(
+      ArtistModel.tableName,
+      orderBy: '${ArtistModel.tableName}.${ArtistModel.columns.artist_id} DESC',
+    );
 
     return result
         .map(
