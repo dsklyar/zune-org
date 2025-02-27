@@ -14,7 +14,7 @@ class ZuneDatabase {
 
     _database = await _initDatabase();
 
-    await Initializer.populateDatabase();
+    // await Initializer.populateDatabase();
     return _database!;
   }
 
@@ -64,6 +64,6 @@ class ZuneDatabase {
     batch.execute(ArtistModel.createModelScript());
     batch.execute(TrackModel.createModelScript());
     batch.execute(TrackImageModel.createModelScript());
-    batch.execute(AlbumModel.createModelScript());
+    batch.execute(AlbumModelSummary.createModelScript());
   }
 }

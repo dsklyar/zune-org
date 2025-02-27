@@ -33,13 +33,13 @@ class ItemsColumn extends StatelessWidget {
           direction: Axis.horizontal,
           children: items.map(
             (item) {
-              if (item is AlbumModel) {
+              if (item is AlbumModelSummary) {
                 return AlbumTile(
                   album: item,
                   onAlbumClick: onClickHandler,
                 );
               }
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             },
           ).toList(),
         ),

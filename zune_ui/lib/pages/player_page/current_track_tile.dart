@@ -129,7 +129,7 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Selector<GlobalModalState, AlbumModel>(
+                Selector<GlobalModalState, AlbumModelSummary>(
                   selector: (context, state) => state.currentlyPlaying!.album,
                   builder: (context, album, child) => Stack(
                     children: [

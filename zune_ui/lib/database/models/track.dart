@@ -122,6 +122,20 @@ class TrackModel extends PlayableItem {
     }
   }
 
+  static Future<List<TrackModel>> readAll() async {
+    final ZuneDatabase zune = ZuneDatabase.instance;
+
+    final db = await zune.database;
+    final result = await db.query(TrackModel.tableName,
+        orderBy: '${TrackModel.tableName}.${TrackModel.columns.track_id} DESC');
+
+    return result
+        .map(
+          (json) => TrackModel.fromJson(json),
+        )
+        .toList();
+  }
+
   @override
   Future<void> addToQuickplay() async {
     console.log("Pretend to add $track_name song to Pins");

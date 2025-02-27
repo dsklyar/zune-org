@@ -14,9 +14,11 @@ part "models/shared.dart";
 part "models/artist.dart";
 part "models/track_image.dart";
 part "models/track.dart";
+part "models/album.dart";
 part "models/album_summary.dart";
 part "database.dart";
 part "initializer.dart";
 part "metadata.dart";
+part "collector.dart";
 
 final console = DebugPrint().register(DebugComponent.database);
