@@ -5,14 +5,14 @@ part of database;
 class TrackModelColumns {
   const TrackModelColumns();
   String get track_id => "track_id";
-  String get album_name => "album_name";
+  String get album_id => "album_id";
   String get artist_id => "artist_id";
   String get track_duration => "track_duration";
   String get track_name => "track_name";
   String get path_to_filename => "path_to_filename";
   List<String> get values => [
         track_id,
-        album_name,
+        album_id,
         artist_id,
         track_duration,
         track_name,
@@ -22,11 +22,10 @@ class TrackModelColumns {
 
 class TrackModel extends PlayableItem {
   static String tableName = "Tracks";
-  static const String defaultAlbum = "unknown album";
   static const TrackModelColumns columns = TrackModelColumns();
 
   final int track_id;
-  final String? album_name;
+  final int? album_id;
   final int? artist_id;
   final int track_duration;
   final String track_name;
@@ -34,10 +33,11 @@ class TrackModel extends PlayableItem {
 
   /// NON-TABLE Properties
   String artist_name = ArtistModel.defaultArtist;
+  String album_name = AlbumModel.defaultAlbum;
 
   TrackModel({
     this.track_id = -1,
-    this.album_name,
+    this.album_id,
     this.artist_id,
     this.track_duration = 0,
     required this.track_name,
@@ -48,13 +48,14 @@ class TrackModel extends PlayableItem {
     return ('''
           CREATE TABLE "$tableName" (
             "${columns.track_id}"	INTEGER NOT NULL UNIQUE,
-            "${columns.album_name}"	TEXT DEFAULT '$defaultAlbum',
+            "${columns.album_id}"	 INTEGER NOT NULL,
             "${columns.artist_id}" INTEGER NOT NULL,
             "${columns.track_duration}"  INTEGER DEFAULT 0,
             "${columns.track_name}"	TEXT NOT NULL,
             "${columns.path_to_filename}"	TEXT NOT NULL,
             PRIMARY KEY("${columns.track_id}" AUTOINCREMENT)
             FOREIGN KEY("${columns.artist_id}") REFERENCES "${ArtistModel.tableName}"("${ArtistModel.columns.artist_id}")
+            FOREIGN KEY("${columns.album_id}") REFERENCES "${AlbumModel.tableName}"("${AlbumModel.columns.album_id}")
           );
       ''');
   }
@@ -71,7 +72,7 @@ class TrackModel extends PlayableItem {
 
   Map<String, Object?> toJson() => {
         columns.track_id: track_id == -1 ? null : track_id,
-        columns.album_name: album_name,
+        columns.album_id: album_id,
         columns.artist_id: artist_id,
         columns.track_duration: track_duration,
         columns.track_name: track_name,
@@ -80,7 +81,7 @@ class TrackModel extends PlayableItem {
 
   TrackModel copy({
     int? track_id,
-    String? album_name,
+    int? album_id,
     int? artist_id,
     int? track_duration,
     String? track_name,
@@ -88,7 +89,7 @@ class TrackModel extends PlayableItem {
   }) =>
       TrackModel(
         track_id: track_id ?? this.track_id,
-        album_name: album_name ?? this.album_name,
+        album_id: album_id ?? this.album_id,
         artist_id: artist_id ?? this.artist_id,
         track_duration: track_duration ?? this.track_duration,
         track_name: track_name ?? this.track_name,
@@ -97,7 +98,7 @@ class TrackModel extends PlayableItem {
 
   static TrackModel fromJson(Map<String, Object?> json) => TrackModel(
         track_id: json[columns.track_id] as int,
-        album_name: json[columns.album_name] as String?,
+        album_id: json[columns.album_id] as int?,
         artist_id: json[columns.artist_id] as int?,
         track_duration: json[columns.track_duration] as int,
         track_name: json[columns.track_name] as String,

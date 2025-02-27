@@ -20,10 +20,17 @@ class Initializer {
               ),
               txn: txn,
             );
+            final album = await AlbumModel.create(
+              AlbumModel(
+                album_name: file.album ?? AlbumModel.defaultAlbum,
+                artist_id: artist.artist_id,
+              ),
+              txn: txn,
+            );
 
-            final track = await TrackModel.create(
+            await TrackModel.create(
               TrackModel(
-                album_name: file.album,
+                album_id: album.album_id,
                 artist_id: artist.artist_id,
                 track_duration: file.duration?.inSeconds ?? 0,
                 track_name: file.title ?? "EMPTY",
@@ -35,7 +42,7 @@ class Initializer {
             for (var image in file.pictures) {
               await TrackImageModel.create(
                 TrackImageModel(
-                  album_name: track.album_name,
+                  album_id: album.album_id,
                   artist_id: artist.artist_id,
                   image_type: image.pictureType.index,
                   image_blob: image.bytes,

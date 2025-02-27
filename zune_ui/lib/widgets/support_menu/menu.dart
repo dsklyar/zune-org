@@ -10,7 +10,7 @@ class SupportMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     /// TODO: Need to figure out a way to specify what onclick does to other interactive items
     onItemClickHandler(GlobalModalState state) => (InteractiveItem item) {
-          if (item is AlbumModel) {
+          if (item is AlbumModelSummary) {
             state.updateCurrentlyPlaying(item);
             context.go(ApplicationRoute.player.route);
           }
