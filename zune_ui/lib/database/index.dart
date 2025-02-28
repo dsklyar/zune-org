@@ -12,8 +12,9 @@ import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 part "models/shared.dart";
 part "models/artist.dart";
-part "models/track_image.dart";
 part "models/track.dart";
+part "models/track_image.dart";
+part "models/track_summary.dart";
 part "models/album.dart";
 part "models/album_summary.dart";
 part "database.dart";

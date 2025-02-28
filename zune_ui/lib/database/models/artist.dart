@@ -1,10 +1,11 @@
 // ignore_for_file: non_constant_identifier_names
 part of database;
 
-class ArtistModelColumns {
+class ArtistModelColumns extends BaseModelColumns {
   const ArtistModelColumns();
   String get artist_id => "artist_id";
   String get artist_name => "artist_name";
+  @override
   List<String> get values => [
         artist_id,
         artist_name,
@@ -100,12 +101,15 @@ class ArtistModel implements PlayableItem {
     }
   }
 
-  static Future<List<ArtistModel>> readAll() async {
+  static Future<List<ArtistModel>> readAll({
+    WhereClause? where,
+  }) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
     final result = await db.query(
       ArtistModel.tableName,
+      where: where != null ? columns.toSqlClause(where) : null,
       orderBy: '${ArtistModel.tableName}.${ArtistModel.columns.artist_id} DESC',
     );
 

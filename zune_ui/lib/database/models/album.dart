@@ -2,11 +2,12 @@
 
 part of database;
 
-class AlbumModelColumns {
+class AlbumModelColumns extends BaseModelColumns {
   const AlbumModelColumns();
   String get album_id => "album_id";
   String get album_name => "album_name";
   String get artist_id => "artist_id";
+  @override
   List<String> get values => [
         album_id,
         album_name,
@@ -120,12 +121,15 @@ class AlbumModel implements PlayableItem {
     }
   }
 
-  static Future<List<AlbumModel>> readAll() async {
+  static Future<List<AlbumModel>> readAll({
+    WhereClause? where,
+  }) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
     final result = await db.query(
       AlbumModel.tableName,
+      where: where != null ? columns.toSqlClause(where) : null,
       orderBy: '${AlbumModel.tableName}.${AlbumModel.columns.album_id} DESC',
     );
 

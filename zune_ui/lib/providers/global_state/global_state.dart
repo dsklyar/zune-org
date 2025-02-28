@@ -7,7 +7,7 @@ import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 final console = DebugPrint().register(DebugComponent.globalState);
 
-typedef CurrentlyPlaying = ({AlbumModelSummary album, TrackModel song})?;
+typedef CurrentlyPlaying = ({AlbumSummary album, TrackSummary song})?;
 
 class GlobalModalState extends ChangeNotifier {
   // For Pinned/New/Recently items allow up to 8 items in render
@@ -16,7 +16,7 @@ class GlobalModalState extends ChangeNotifier {
   CurrentlyPlaying _currentlyPlaying;
   CurrentlyPlaying get currentlyPlaying => _currentlyPlaying;
 
-  List<TrackModel> _currentSongList = [];
+  List<TrackSummary> _currentSongList = [];
   int _currentSongIndex = 0;
 
   /// NOTE: Property used to track the most recent choice between
@@ -32,18 +32,18 @@ class GlobalModalState extends ChangeNotifier {
   int _volumeLevel = 0;
   int get volumeLevel => _volumeLevel;
 
-  List<AlbumModelSummary> _allAlbums = [];
-  List<AlbumModelSummary> _newlyAddedItems = [];
+  List<AlbumSummary> _allAlbums = [];
+  List<AlbumSummary> _newlyAddedItems = [];
   final List<InteractiveItem> _pinnedItems = [];
   final List<InteractiveItem> _recentlyPlayedItems = [];
 
   UnmodifiableListView<InteractiveItem> get pinnedItems =>
       UnmodifiableListView(_pinnedItems);
-  UnmodifiableListView<AlbumModelSummary> get newlyAddedItems =>
+  UnmodifiableListView<AlbumSummary> get newlyAddedItems =>
       UnmodifiableListView(_newlyAddedItems);
   UnmodifiableListView<InteractiveItem> get recentlyPlayedItems =>
       UnmodifiableListView(_recentlyPlayedItems);
-  UnmodifiableListView<AlbumModelSummary> get allAlbums =>
+  UnmodifiableListView<AlbumSummary> get allAlbums =>
       UnmodifiableListView(_allAlbums);
 
   MusicCategoryType _lastSelectedCategory = MusicCategoryType.albums;
@@ -54,7 +54,7 @@ class GlobalModalState extends ChangeNotifier {
   }
 
   Future<void> initializeStore() async {
-    final allAlbums = await AlbumModelSummary.readAll();
+    final allAlbums = await AlbumSummary.readAll();
     _allAlbums = allAlbums;
     _allAlbums.sort((a, b) => a.album_name.compareTo(b.album_name));
 
@@ -84,7 +84,7 @@ class GlobalModalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateCurrentlyPlaying(AlbumModelSummary album) {
+  void updateCurrentlyPlaying(AlbumSummary album) {
     if (album.album_name == _currentlyPlaying?.album.album_name) return;
     album.getTracks().then(
       (value) {
@@ -102,7 +102,7 @@ class GlobalModalState extends ChangeNotifier {
     // No need for notifyListeners, above will take care of that
   }
 
-  void updateRecentlyPlayedItems(AlbumModelSummary album) {
+  void updateRecentlyPlayedItems(AlbumSummary album) {
     if (_recentlyPlayedItems.length >= _maxAllowedItemsCount) {
       _recentlyPlayedItems.removeLast();
     } else if (_recentlyPlayedItems.contains(album)) {
@@ -112,7 +112,7 @@ class GlobalModalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateNewlyAddedItems(AlbumModelSummary album) {
+  void updateNewlyAddedItems(AlbumSummary album) {
     if (_newlyAddedItems.length >= _maxAllowedItemsCount) {
       _newlyAddedItems.removeLast();
     } else if (_newlyAddedItems.contains(album)) {
@@ -122,7 +122,7 @@ class GlobalModalState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePinnedItems(AlbumModelSummary album) {
+  void updatePinnedItems(AlbumSummary album) {
     if (_pinnedItems.length >= _maxAllowedItemsCount) {
       _pinnedItems.removeLast();
     } else if (_pinnedItems.contains(album)) {
@@ -180,7 +180,7 @@ class GlobalModalState extends ChangeNotifier {
     }
   }
 
-  UnmodifiableListView<TrackModel> getNext3Songs() {
+  UnmodifiableListView<TrackSummary> getNext3Songs() {
     if (_currentSongList.isEmpty) return UnmodifiableListView([]);
 
     final absLen = _currentSongList.length;

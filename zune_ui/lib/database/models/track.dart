@@ -2,14 +2,15 @@
 
 part of database;
 
-class TrackModelColumns {
-  const TrackModelColumns();
+class TrackModelColumns extends BaseModelColumns {
+  const TrackModelColumns() : super();
   String get track_id => "track_id";
   String get album_id => "album_id";
   String get artist_id => "artist_id";
   String get track_duration => "track_duration";
   String get track_name => "track_name";
   String get path_to_filename => "path_to_filename";
+  @override
   List<String> get values => [
         track_id,
         album_id,
@@ -30,10 +31,6 @@ class TrackModel implements PlayableItem {
   final int track_duration;
   final String track_name;
   final String path_to_filename;
-
-  /// NON-TABLE Properties
-  String artist_name = ArtistModel.defaultArtist;
-  String album_name = AlbumModel.defaultAlbum;
 
   TrackModel({
     this.track_id = -1,
@@ -122,12 +119,17 @@ class TrackModel implements PlayableItem {
     }
   }
 
-  static Future<List<TrackModel>> readAll() async {
+  static Future<List<TrackModel>> readAll({
+    WhereClause? where,
+  }) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
-    final result = await db.query(TrackModel.tableName,
-        orderBy: '${TrackModel.tableName}.${TrackModel.columns.track_id} DESC');
+    final result = await db.query(
+      TrackModel.tableName,
+      where: where != null ? columns.toSqlClause(where) : null,
+      orderBy: '${TrackModel.tableName}.${TrackModel.columns.track_id} DESC',
+    );
 
     return result
         .map(

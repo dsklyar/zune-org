@@ -33,7 +33,7 @@ class ItemsColumn extends StatelessWidget {
           direction: Axis.horizontal,
           children: items.map(
             (item) {
-              if (item is AlbumModelSummary) {
+              if (item is AlbumSummary) {
                 return AlbumTile(
                   album: item,
                   onAlbumClick: onClickHandler,

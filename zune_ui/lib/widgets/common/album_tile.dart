@@ -27,9 +27,9 @@ class TileUtility {
 }
 
 class AlbumTile extends StatelessWidget {
-  final AlbumModelSummary album;
+  final AlbumSummary album;
   final bool isPlayedCurrently;
-  final void Function(AlbumModelSummary album) onAlbumClick;
+  final void Function(AlbumSummary album) onAlbumClick;
 
   const AlbumTile(
       {super.key,
