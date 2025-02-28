@@ -9,7 +9,7 @@ class CurrentlyPlayingLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
-      child: Selector<GlobalModalState, ({TrackModel? track, int delta})>(
+      child: Selector<GlobalModalState, ({TrackSummary? track, int delta})>(
         selector: (context, state) => (
           track: state.currentlyPlaying?.song,
           delta: state.trackChangeDelta

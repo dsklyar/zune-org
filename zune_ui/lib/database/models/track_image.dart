@@ -1,13 +1,14 @@
 // ignore_for_file: non_constant_identifier_names
 part of database;
 
-class TrackImageModelColumns {
+class TrackImageModelColumns extends BaseModelColumns {
   const TrackImageModelColumns();
   String get image_id => "image_id";
   String get album_id => "album_id";
   String get artist_id => "artist_id";
   String get image_type => "image_type";
   String get image_blob => "image_blob";
+  @override
   List<String> get values => [
         image_id,
         album_id,
@@ -94,4 +95,24 @@ class TrackImageModel {
         image_type: image_type ?? this.image_type,
         image_blob: image_blob ?? this.image_blob,
       );
+
+  static Future<List<TrackImageModel>> readAll({
+    WhereClause? where,
+  }) async {
+    final ZuneDatabase zune = ZuneDatabase.instance;
+
+    final db = await zune.database;
+    final result = await db.query(
+      TrackImageModel.tableName,
+      where: where != null ? columns.toSqlClause(where) : null,
+      orderBy:
+          '${TrackImageModel.tableName}.${TrackImageModel.columns.image_id} DESC',
+    );
+
+    return result
+        .map(
+          (json) => TrackImageModel.fromJson(json),
+        )
+        .toList();
+  }
 }

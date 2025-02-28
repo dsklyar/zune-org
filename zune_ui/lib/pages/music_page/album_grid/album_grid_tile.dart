@@ -7,7 +7,7 @@ const INVERSE_SCALE_VALUE = 1 / SCALE_VALUE;
 class AlbumsGridTile extends StatelessWidget {
   final GlobalKey _globalKey = GlobalKey();
 
-  final ({AlbumModelSummary? album, String? groupKey}) albumGroup;
+  final ({AlbumSummary? album, String? groupKey}) albumGroup;
 
   AlbumsGridTile({
     super.key,
@@ -29,7 +29,7 @@ class AlbumsGridTile extends StatelessWidget {
     );
   }
 
-  Widget generateAlbumTile(BuildContext context, AlbumModelSummary album) {
+  Widget generateAlbumTile(BuildContext context, AlbumSummary album) {
     final albumCover = album.album_cover;
     final albumName = album.album_name;
 
