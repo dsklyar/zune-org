@@ -21,7 +21,7 @@ class Initializer {
         (txn) async {
           for (var file in files) {
             // Skip tracks with empty or null names
-            if (file.title != null || file.title == "") continue;
+            if (file.title == null || file.title == "") continue;
 
             // Generate artist
             ArtistModel artist;
