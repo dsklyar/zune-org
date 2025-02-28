@@ -14,7 +14,7 @@ class AlbumModelColumns {
       ];
 }
 
-class AlbumModel extends PlayableItem {
+class AlbumModel implements PlayableItem {
   static String tableName = "AlbumModel";
   static const String defaultAlbum = "unknown album";
   static const AlbumModelColumns columns = AlbumModelColumns();
@@ -28,6 +28,11 @@ class AlbumModel extends PlayableItem {
     this.album_name = "",
     this.artist_id,
   });
+
+  AlbumModel.fromJson(Map<String, Object?> json)
+      : album_id = json[columns.album_id] as int,
+        album_name = json[columns.album_name] as String,
+        artist_id = json[columns.artist_id] as int;
 
   static String createModelScript() {
     /// NOTE: Adding composite unique constraint on album_name and artist_id to ensure
@@ -97,13 +102,7 @@ class AlbumModel extends PlayableItem {
         artist_id: artist_id ?? this.artist_id,
       );
 
-  static AlbumModel fromJson(Map<String, Object?> json) => AlbumModel(
-        album_id: json[columns.album_id] as int,
-        album_name: json[columns.album_name] as String,
-        artist_id: json[columns.artist_id] as int,
-      );
-
-  Future<AlbumModel> read(int id) async {
+  static Future<AlbumModel> read(int id) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
@@ -115,7 +114,7 @@ class AlbumModel extends PlayableItem {
     );
 
     if (maps.isNotEmpty) {
-      return fromJson(maps.first);
+      return AlbumModel.fromJson(maps.first);
     } else {
       throw Exception('ID $id not found');
     }
