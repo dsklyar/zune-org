@@ -35,6 +35,13 @@ class TrackImageModel {
     required this.image_blob,
   });
 
+  TrackImageModel.fromJson(Map<String, Object?> json)
+      : image_id = json[columns.image_id] as int,
+        album_id = json[columns.album_id] as int?,
+        artist_id = json[columns.artist_id] as int?,
+        image_type = json[columns.image_type] as int,
+        image_blob = json[columns.image_blob] as Uint8List;
+
   static String createModelScript() {
     return ('''
         CREATE TABLE "$tableName" (
@@ -50,14 +57,6 @@ class TrackImageModel {
         );
       ''');
   }
-
-  static TrackImageModel fromJson(Map<String, Object?> json) => TrackImageModel(
-        image_id: json[columns.image_id] as int,
-        album_id: json[columns.album_id] as int?,
-        artist_id: json[columns.artist_id] as int?,
-        image_type: json[columns.image_type] as int,
-        image_blob: json[columns.image_blob] as Uint8List,
-      );
 
   static Future<TrackImageModel> create(
     TrackImageModel toCreate, {

@@ -11,7 +11,7 @@ class ArtistModelColumns {
       ];
 }
 
-class ArtistModel extends PlayableItem {
+class ArtistModel implements PlayableItem {
   static const String tableName = "Artists";
   static const String defaultArtist = "unknown artist";
   static const ArtistModelColumns columns = ArtistModelColumns();
@@ -24,6 +24,10 @@ class ArtistModel extends PlayableItem {
     this.artist_id = -1,
     this.artist_name = ArtistModel.defaultArtist,
   });
+
+  ArtistModel.fromJson(Map<String, Object?> json)
+      : artist_id = json[columns.artist_id] as int,
+        artist_name = json[columns.artist_name] as String;
 
   static String createModelScript() {
     return ('''
@@ -78,12 +82,7 @@ class ArtistModel extends PlayableItem {
         artist_name: artist_name ?? this.artist_name,
       );
 
-  static ArtistModel fromJson(Map<String, Object?> json) => ArtistModel(
-        artist_id: json[columns.artist_id] as int,
-        artist_name: json[columns.artist_name] as String,
-      );
-
-  Future<ArtistModel> read(int id) async {
+  static Future<ArtistModel> read(int id) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
@@ -95,7 +94,7 @@ class ArtistModel extends PlayableItem {
     );
 
     if (maps.isNotEmpty) {
-      return fromJson(maps.first);
+      return ArtistModel.fromJson(maps.first);
     } else {
       throw Exception('ID $id not found');
     }

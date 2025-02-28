@@ -22,7 +22,7 @@ class AlbumSummaryModelColumns {
       ];
 }
 
-class AlbumModelSummary extends PlayableItem {
+class AlbumModelSummary implements PlayableItem {
   static String tableName = "AlbumModelSummary";
   static const AlbumSummaryModelColumns columns = AlbumSummaryModelColumns();
 
@@ -46,6 +46,18 @@ class AlbumModelSummary extends PlayableItem {
     this.album_illustration,
     this.track_ids = const [],
   });
+
+  AlbumModelSummary.fromJson(Map<String, Object?> json)
+      : album_name = json[columns.album_name] as String,
+        artist_name = json[columns.artist_name] as String,
+        track_count = json[columns.track_count] as int,
+        total_duration = json[columns.total_duration] as int,
+        album_cover = json[columns.album_cover] as Uint8List?,
+        album_illustration = json[columns.album_illustration] as Uint8List?,
+        track_ids = (json[columns.track_ids] as String)
+            .split(",")
+            .map(int.parse)
+            .toList();
 
   static String createModelScript() {
     return ('''
@@ -114,20 +126,6 @@ class AlbumModelSummary extends PlayableItem {
         track_ids: track_ids ?? this.track_ids,
       );
 
-  static AlbumModelSummary fromJson(Map<String, Object?> json) =>
-      AlbumModelSummary(
-        album_name: json[columns.album_name] as String,
-        artist_name: json[columns.artist_name] as String,
-        track_count: json[columns.track_count] as int,
-        total_duration: json[columns.total_duration] as int,
-        album_cover: json[columns.album_cover] as Uint8List?,
-        album_illustration: json[columns.album_illustration] as Uint8List?,
-        track_ids: (json[columns.track_ids] as String)
-            .split(",")
-            .map(int.parse)
-            .toList(),
-      );
-
   static Future<AlbumModelSummary> read(
       String album_name, String artist_name) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
@@ -141,7 +139,7 @@ class AlbumModelSummary extends PlayableItem {
     );
 
     if (maps.isNotEmpty) {
-      return fromJson(maps.first);
+      return AlbumModelSummary.fromJson(maps.first);
     } else {
       throw Exception('Album with $album_name and $artist_name found');
     }

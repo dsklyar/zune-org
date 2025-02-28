@@ -20,7 +20,7 @@ class TrackModelColumns {
       ];
 }
 
-class TrackModel extends PlayableItem {
+class TrackModel implements PlayableItem {
   static String tableName = "Tracks";
   static const TrackModelColumns columns = TrackModelColumns();
 
@@ -43,6 +43,14 @@ class TrackModel extends PlayableItem {
     required this.track_name,
     required this.path_to_filename,
   });
+
+  TrackModel.fromJson(Map<String, Object?> json)
+      : track_id = json[columns.track_id] as int,
+        album_id = json[columns.album_id] as int?,
+        artist_id = json[columns.artist_id] as int?,
+        track_duration = json[columns.track_duration] as int,
+        track_name = json[columns.track_name] as String,
+        path_to_filename = json[columns.path_to_filename] as String;
 
   static String createModelScript() {
     return ('''
@@ -96,16 +104,7 @@ class TrackModel extends PlayableItem {
         path_to_filename: path_to_filename ?? this.path_to_filename,
       );
 
-  static TrackModel fromJson(Map<String, Object?> json) => TrackModel(
-        track_id: json[columns.track_id] as int,
-        album_id: json[columns.album_id] as int?,
-        artist_id: json[columns.artist_id] as int?,
-        track_duration: json[columns.track_duration] as int,
-        track_name: json[columns.track_name] as String,
-        path_to_filename: json[columns.path_to_filename] as String,
-      );
-
-  Future<TrackModel> read(int id) async {
+  static Future<TrackModel> read(int id) async {
     final ZuneDatabase zune = ZuneDatabase.instance;
 
     final db = await zune.database;
@@ -117,7 +116,7 @@ class TrackModel extends PlayableItem {
     );
 
     if (maps.isNotEmpty) {
-      return fromJson(maps.first);
+      return TrackModel.fromJson(maps.first);
     } else {
       throw Exception('ID $id not found');
     }
