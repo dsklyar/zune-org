@@ -373,8 +373,10 @@ class _ControlsPageState extends State<ControlsPage>
     _queueOverlayClosingEffect();
 
     PlayPauseTrackAtPath(
-            action: globalState.isPlaying ? "pause_action" : "resume_action")
-        .sendSignalToRust();
+      action: globalState.isPlaying
+          ? PlayPauseRustActionEnum.pauseAction.value
+          : PlayPauseRustActionEnum.resumeAction.value,
+    ).sendSignalToRust();
     globalState.updateIsPlaying(!globalState.isPlaying);
   }
 

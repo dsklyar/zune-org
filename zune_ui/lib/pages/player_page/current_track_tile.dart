@@ -171,7 +171,7 @@ class _CurrentTrackTileState extends State<CurrentTrackTile>
                 ),
                 Selector<GlobalModalState, int>(
                   selector: (context, state) =>
-                      state.currentlyPlaying!.song.track_duration!,
+                      state.currentlyPlaying!.song.track_duration,
                   builder: (context, duration, child) {
                     return StreamBuilder(
                       stream: SeekChange.rustSignalStream,

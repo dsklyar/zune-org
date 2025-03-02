@@ -19,9 +19,9 @@ class TrackSummary extends TrackModel {
   final String artist_name;
   final String album_name;
 
-  TrackSummary(
-    this.artist_name,
-    this.album_name, {
+  TrackSummary({
+    required this.artist_name,
+    required this.album_name,
     required super.track_name,
     required super.path_to_filename,
   });

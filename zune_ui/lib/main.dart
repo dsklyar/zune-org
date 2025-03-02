@@ -4,13 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:zune_ui/pages/music_page/index.dart';
 import 'package:zune_ui/pages/overlays_page/index.dart';
 import 'package:zune_ui/pages/player_page/index.dart';
-import 'package:zune_ui/providers/global_state/global_state.dart';
+import 'package:zune_ui/providers/global_state/index.dart';
 import 'package:zune_ui/providers/scroll_state/scroll_state.dart';
 import 'package:zune_ui/pages/home_page/page.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rinf/rinf.dart';
 import 'package:zune_ui/widgets/custom/route_utils.dart';
+import 'package:zune_ui/widgets/window_bar/index.dart';
 import './messages/all.dart';
 
 const initialSize = Size(272, 480);
@@ -103,12 +104,7 @@ class MyApp extends StatelessWidget {
               fontFamily: 'Zegoe UI',
             ),
           ),
-          if (isDebug)
-            Container(
-              width: 128,
-              color: const Color.fromARGB(25, 255, 249, 231),
-              child: WindowTitleBarBox(child: MoveWindow()),
-            ),
+          const WindowBar(),
         ],
       ),
     );

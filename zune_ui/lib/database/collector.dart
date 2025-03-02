@@ -1,43 +1,85 @@
+// ignore_for_file: non_constant_identifier_names, constant_identifier_names
+
 part of database;
 
+class CollectorConfiguration {
+  static const int DEFAULT_COUNT = 20;
+  final int max_pinned_items_count;
+  final int max_new_items_count;
+  final int max_history_items_count;
+
+  const CollectorConfiguration({
+    this.max_pinned_items_count = CollectorConfiguration.DEFAULT_COUNT,
+    this.max_new_items_count = CollectorConfiguration.DEFAULT_COUNT,
+    this.max_history_items_count = CollectorConfiguration.DEFAULT_COUNT,
+  });
+}
+
 class Collector {
-  final Map<String, TrackModel> _tracksMap = {};
-  final Map<String, AlbumModel> _albumMap = {};
-  final Map<String, ArtistModel> _artistMap = {};
+  final CollectorConfiguration collectorConfiguration;
 
-  Collector();
+  final Map<int, TrackSummary> _tracksMap = {};
+  final Map<int, AlbumSummary> _albumMap = {};
 
-  Future initialize() async {
+  List<TrackSummary> get allTracks => _tracksMap.values.toList();
+  List<AlbumSummary> get allAlbums => _albumMap.values.toList();
+
+  final List<InteractiveItem> _newlyAddedItems = [];
+  final List<InteractiveItem> _pinnedItems = [];
+  // TODO add LRU here
+  final List<InteractiveItem> _recentlyPlayedItems = [];
+
+  List<InteractiveItem> get newlyAddedItems => _newlyAddedItems;
+  List<InteractiveItem> get pinnedItems => _pinnedItems;
+  List<InteractiveItem> get recentlyPlayedItems => _recentlyPlayedItems;
+
+  Collector({
+    this.collectorConfiguration = const CollectorConfiguration(),
+  });
+
+  Future<void> initializeCollector() async {
     await Initializer.populateDatabase();
 
-    final albums = await AlbumModel.readAll();
-    _albumMap.addEntries(
-      albums.map(
-        (album) => MapEntry(
-          "${album.album_name}\\${album.artist_name}",
-          album,
-        ),
-      ),
+    assignTrack(TrackSummary track) => _tracksMap[track.track_id] = track;
+    (await TrackSummary.readAll()).forEach(assignTrack);
+
+    assignAlbum(AlbumSummary album) => _albumMap[album.album_id] = album;
+    (await AlbumSummary.readAll()).forEach(assignAlbum);
+
+    pushToNewlyAddedItems(AlbumSummary album) => _newlyAddedItems.add(album);
+    (await _getNewAddedAlbums(
+      limit: collectorConfiguration.max_new_items_count,
+    ))
+        .forEach(pushToNewlyAddedItems);
+  }
+
+  Future<void> updateRecentlyPlayedItems(InteractiveItem item) async {
+    if (_recentlyPlayedItems.length >=
+        collectorConfiguration.max_new_items_count) {
+      _recentlyPlayedItems.removeLast();
+    } else if (_recentlyPlayedItems.contains(item)) {
+      _recentlyPlayedItems.remove(item);
+    }
+    _recentlyPlayedItems.insert(0, item);
+  }
+
+  /// Private Methods
+
+  Future<List<AlbumSummary>> _getNewAddedAlbums({int limit = 8}) async {
+    final ZuneDatabase zune = ZuneDatabase.instance;
+
+    final db = await zune.database;
+    final result = await db.query(
+      AlbumSummary.tableName,
+      orderBy:
+          '${AlbumSummary.tableName}.${AlbumSummary.columns.added_at} DESC',
+      limit: limit,
     );
 
-    final tracks = await TrackModel.readAll();
-    _tracksMap.addEntries(
-      tracks.map(
-        (track) => MapEntry(
-          "${track.track_id}",
-          track,
-        ),
-      ),
-    );
-
-    final artists = await ArtistModel.readAll();
-    _artistMap.addEntries(
-      artists.map(
-        (artist) => MapEntry(
-          "${artist.artist_id}",
-          artist,
-        ),
-      ),
-    );
+    return result
+        .map(
+          (json) => AlbumSummary.fromJson(json),
+        )
+        .toList();
   }
 }
