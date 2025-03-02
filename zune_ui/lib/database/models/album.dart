@@ -7,11 +7,13 @@ class AlbumModelColumns extends BaseModelColumns {
   String get album_id => "album_id";
   String get album_name => "album_name";
   String get artist_id => "artist_id";
+  String get added_at => "added_at";
   @override
   List<String> get values => [
         album_id,
         album_name,
         artist_id,
+        added_at,
       ];
 }
 
@@ -23,17 +25,20 @@ class AlbumModel implements PlayableItem {
   final int album_id;
   final String album_name;
   final int? artist_id;
+  final DateTime? added_at;
 
   AlbumModel({
     this.album_id = -1,
-    this.album_name = "",
     this.artist_id,
+    this.added_at,
+    required this.album_name,
   });
 
   AlbumModel.fromJson(Map<String, Object?> json)
       : album_id = json[columns.album_id] as int,
         album_name = json[columns.album_name] as String,
-        artist_id = json[columns.artist_id] as int;
+        artist_id = json[columns.artist_id] as int,
+        added_at = DateTime.parse(json[columns.added_at] as String);
 
   static String createModelScript() {
     /// NOTE: Adding composite unique constraint on album_name and artist_id to ensure
@@ -44,6 +49,7 @@ class AlbumModel implements PlayableItem {
             "${columns.album_id}"	INTEGER NOT NULL UNIQUE,
             "${columns.album_name}"	TEXT NOT NULL,
             "${columns.artist_id}" INTEGER NOT NULL,
+            "${columns.added_at}" EXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY("${columns.album_id}" AUTOINCREMENT)
             FOREIGN KEY("${columns.artist_id}") REFERENCES "${ArtistModel.tableName}"("${ArtistModel.columns.artist_id}")
             UNIQUE("${columns.album_name}", "${columns.artist_id}")

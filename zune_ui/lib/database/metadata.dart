@@ -28,6 +28,8 @@ class Metadata {
       return;
     }
 
+    // Hack: to keep order of the songs
+    compare(File a, File b) => a.path.compareTo(b.path);
     var folder = Directory(directoryPath)
         .listSync(recursive: true)
         .whereType<File>()
@@ -38,6 +40,7 @@ class Metadata {
               element.path.contains("mp3") ||
               element.path.contains("flac"),
         )
+        .sorted(compare)
         .toList();
 
     for (final file in folder) {

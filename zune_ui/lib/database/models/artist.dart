@@ -17,7 +17,6 @@ class ArtistModel implements PlayableItem {
   static const String defaultArtist = "unknown artist";
   static const ArtistModelColumns columns = ArtistModelColumns();
 
-  // DATABASE PROPERTIES
   final int artist_id;
   final String artist_name;
 

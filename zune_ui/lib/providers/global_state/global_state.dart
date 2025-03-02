@@ -1,17 +1,9 @@
-import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:zune_ui/database/index.dart';
-import 'package:zune_ui/enums/index.dart';
-import 'package:zune_ui/messages/all.dart';
-import 'package:zune_ui/widgets/custom/debug_print.dart';
-
-final console = DebugPrint().register(DebugComponent.globalState);
+part of global_state;
 
 typedef CurrentlyPlaying = ({AlbumSummary album, TrackSummary song})?;
 
 class GlobalModalState extends ChangeNotifier {
-  // For Pinned/New/Recently items allow up to 8 items in render
-  static const int _maxAllowedItemsCount = 20;
+  final Collector _collector = Collector();
 
   CurrentlyPlaying _currentlyPlaying;
   CurrentlyPlaying get currentlyPlaying => _currentlyPlaying;
@@ -32,39 +24,27 @@ class GlobalModalState extends ChangeNotifier {
   int _volumeLevel = 0;
   int get volumeLevel => _volumeLevel;
 
-  List<AlbumSummary> _allAlbums = [];
-  List<AlbumSummary> _newlyAddedItems = [];
-  final List<InteractiveItem> _pinnedItems = [];
-  final List<InteractiveItem> _recentlyPlayedItems = [];
-
-  UnmodifiableListView<InteractiveItem> get pinnedItems =>
-      UnmodifiableListView(_pinnedItems);
-  UnmodifiableListView<AlbumSummary> get newlyAddedItems =>
-      UnmodifiableListView(_newlyAddedItems);
-  UnmodifiableListView<InteractiveItem> get recentlyPlayedItems =>
-      UnmodifiableListView(_recentlyPlayedItems);
-  UnmodifiableListView<AlbumSummary> get allAlbums =>
-      UnmodifiableListView(_allAlbums);
-
   MusicCategoryType _lastSelectedCategory = MusicCategoryType.albums;
   MusicCategoryType get lastSelectedCategory => _lastSelectedCategory;
+
+  UnmodifiableListView<InteractiveItem> get recentlyPlayedItems =>
+      UnmodifiableListView(_collector.recentlyPlayedItems);
+  UnmodifiableListView<InteractiveItem> get pinnedItems =>
+      UnmodifiableListView(_collector.pinnedItems);
+  UnmodifiableListView<InteractiveItem> get newlyAddedItems =>
+      UnmodifiableListView(_collector.newlyAddedItems);
+  UnmodifiableListView<AlbumSummary> get allAlbums =>
+      UnmodifiableListView(_collector.allAlbums);
 
   GlobalModalState() {
     initializeStore();
   }
 
   Future<void> initializeStore() async {
-    final allAlbums = await AlbumSummary.readAll();
-    _allAlbums = allAlbums;
-    _allAlbums.sort((a, b) => a.album_name.compareTo(b.album_name));
+    await _collector.initializeCollector();
 
-    /// TODO: Need to actually track newly added tracks
-    _newlyAddedItems = allAlbums.length > _maxAllowedItemsCount
-        ? allAlbums.slice(0, _maxAllowedItemsCount)
-        : allAlbums;
+    RustMessages.sendVolumeChangeEvent(_volumeLevel.roundToDouble());
 
-    VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
-        .sendSignalToRust();
     QueueChange.rustSignalStream.listen((rustSignal) {
       final queueChangeEvent = rustSignal.message;
 
@@ -81,6 +61,7 @@ class GlobalModalState extends ChangeNotifier {
       _trackChangeDelta = 1;
       notifyListeners();
     });
+
     notifyListeners();
   }
 
@@ -93,55 +74,34 @@ class GlobalModalState extends ChangeNotifier {
         _currentSongList = value;
         _currentSongIndex = 0;
         updateRecentlyPlayedItems(album);
-        PlayPauseTrackAtPath(
-          action: "clean_queue_action",
+        RustMessages.sendPlayPauseActionEvent(
+          PlayPauseRustActionEnum.cleanQueueAction,
           paths: _currentSongList.map((e) => e.path_to_filename).toList(),
-        ).sendSignalToRust();
+        );
       },
     );
     // No need for notifyListeners, above will take care of that
   }
 
   void updateRecentlyPlayedItems(AlbumSummary album) {
-    if (_recentlyPlayedItems.length >= _maxAllowedItemsCount) {
-      _recentlyPlayedItems.removeLast();
-    } else if (_recentlyPlayedItems.contains(album)) {
-      _recentlyPlayedItems.remove(album);
-    }
-    _recentlyPlayedItems.insert(0, album);
-    notifyListeners();
-  }
-
-  void updateNewlyAddedItems(AlbumSummary album) {
-    if (_newlyAddedItems.length >= _maxAllowedItemsCount) {
-      _newlyAddedItems.removeLast();
-    } else if (_newlyAddedItems.contains(album)) {
-      _newlyAddedItems.remove(album);
-    }
-    _newlyAddedItems.insert(0, album);
-    notifyListeners();
-  }
-
-  void updatePinnedItems(AlbumSummary album) {
-    if (_pinnedItems.length >= _maxAllowedItemsCount) {
-      _pinnedItems.removeLast();
-    } else if (_pinnedItems.contains(album)) {
-      _pinnedItems.remove(album);
-    }
-    _pinnedItems.insert(0, album);
-    notifyListeners();
+    _collector.updateRecentlyPlayedItems(album).then((_) => notifyListeners());
   }
 
   void playNextPrevSong(int delta) {
-    console.log("SongChange Event: { delta: $delta prev: $_currentSongIndex}",
-        customTags: ["GLOBAL STATE"]);
+    console.log(
+      "SongChange Event: { delta: $delta prev: $_currentSongIndex}",
+      customTags: ["GLOBAL STATE"],
+    );
 
     final trackIndex = _getNextPrevTrackIndex(delta);
     if (trackIndex != -1) {
       _currentSongIndex = trackIndex;
-      PlayPauseTrackAtPath(
-              action: delta > 0 ? "next_action" : "previous_action")
-          .sendSignalToRust();
+
+      RustMessages.sendPlayPauseActionEvent(
+        delta > 0
+            ? PlayPauseRustActionEnum.nextAction
+            : PlayPauseRustActionEnum.previousAction,
+      );
 
       _currentlyPlaying = (
         album: _currentlyPlaying!.album,
@@ -166,15 +126,13 @@ class GlobalModalState extends ChangeNotifier {
     if (delta > 0) {
       if (_volumeLevel <= 29) {
         _volumeLevel += 1;
-        VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
-            .sendSignalToRust();
+        RustMessages.sendVolumeChangeEvent(_volumeLevel.roundToDouble());
         notifyListeners();
       }
     } else {
       if (_volumeLevel > 0) {
         _volumeLevel -= 1;
-        VolumeChange(max: 30, value: _volumeLevel.roundToDouble())
-            .sendSignalToRust();
+        RustMessages.sendVolumeChangeEvent(_volumeLevel.roundToDouble());
         notifyListeners();
       }
     }

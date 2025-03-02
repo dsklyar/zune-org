@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:zune_ui/database/index.dart';
 import 'package:zune_ui/messages/all.dart';
 import 'package:zune_ui/pages/overlays_page/index.dart';
-import 'package:zune_ui/providers/global_state/global_state.dart';
+import 'package:zune_ui/providers/global_state/index.dart';
 import 'package:zune_ui/widgets/common/index.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
 import 'package:zune_ui/widgets/custom/route_utils.dart';
