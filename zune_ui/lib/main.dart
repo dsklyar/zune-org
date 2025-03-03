@@ -78,6 +78,7 @@ void main() async {
   doWhenWindowReady(() {
     appWindow.maxSize = initialSize;
     appWindow.minSize = initialSize;
+    appWindow.size = initialSize;
     appWindow.alignment = Alignment.center;
     appWindow.show();
   });
@@ -104,7 +105,7 @@ class MyApp extends StatelessWidget {
               fontFamily: 'Zegoe UI',
             ),
           ),
-          const WindowBar(),
+          WindowBar(router: _router),
         ],
       ),
     );
