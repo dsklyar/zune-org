@@ -52,7 +52,9 @@ class TrackSummary extends TrackModel {
         ${AlbumModel.tableName} albums
       ON
         tracks.${TrackModel.columns.album_id} = albums.${AlbumModel.columns.album_id}
-      ${where != null ? "WHERE ${columns.toSqlClause(where)};" : ''}
+      ${where != null ? "WHERE ${columns.toSqlClause(where)}" : ''}
+      ORDER BY
+        tracks.${TrackModel.columns.track_name};
     ''');
 
     return result

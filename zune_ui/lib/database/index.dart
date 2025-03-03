@@ -11,6 +11,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
 
 part "models/shared.dart";
+part "models/playlist.dart";
+part "models/playlist_summary.dart";
+part "models/playlist_track_junction.dart";
 part "models/genre.dart";
 part "models/genre_summary.dart";
 part "models/album_genre_junction.dart";
