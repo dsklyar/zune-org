@@ -41,7 +41,7 @@ class ArtistSummary extends ArtistModel {
         ${AlbumModel.tableName} albums
       ON
         artists.${ArtistModel.columns.artist_id} = albums.${AlbumModel.columns.artist_id}
-      ${where != null ? "WHERE ${columns.toSqlClause(where)};" : ''}
+      ${where != null ? "WHERE ${columns.toSqlClause(where)}" : ''}
       GROUP BY 
         artists.${ArtistModel.columns.artist_name};
     ''');

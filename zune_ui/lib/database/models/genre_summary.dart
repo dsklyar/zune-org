@@ -16,7 +16,9 @@ class GenreSummary extends GenreModel {
 
   final List<int> album_ids;
 
-  GenreSummary({this.album_ids = const []});
+  GenreSummary({
+    this.album_ids = const [],
+  });
 
   GenreSummary.fromJson(Map<String, Object?> json)
       : album_ids = (json[columns.album_ids] as String)
@@ -41,7 +43,7 @@ class GenreSummary extends GenreModel {
         ${AlbumGenreJunction.tableName} albumGenres
       ON
         genres.${GenreModel.columns.genre_id} = albumGenres.${AlbumGenreJunction.columns.genre_id}
-      ${where != null ? "WHERE ${columns.toSqlClause(where)};" : ''}
+      ${where != null ? "WHERE ${columns.toSqlClause(where)}" : ''}
       GROUP BY 
         genres.${GenreModel.columns.genre_name};
     ''');
