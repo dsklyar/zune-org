@@ -114,8 +114,12 @@ class GlobalModalState extends ChangeNotifier {
     }
   }
 
-  void updateIsPlaying(bool value) {
-    _isPlaying = value;
+  void togglePlayPause() {
+    final action = isPlaying
+        ? PlayPauseRustActionEnum.pauseAction
+        : PlayPauseRustActionEnum.resumeAction;
+    RustMessages.sendPlayPauseActionEvent(action);
+    _isPlaying = !_isPlaying;
     notifyListeners();
   }
 
@@ -136,6 +140,18 @@ class GlobalModalState extends ChangeNotifier {
         notifyListeners();
       }
     }
+  }
+
+  void setLastSelectedCategory(MusicCategoryType category) {
+    _lastSelectedCategory = category;
+    notifyListeners();
+  }
+
+  void navigateToCategory(int delta) {
+    final nextCategory =
+        MusicCategoryType.getNextPrevCategory(delta, _lastSelectedCategory);
+    _lastSelectedCategory = nextCategory;
+    notifyListeners();
   }
 
   UnmodifiableListView<TrackSummary> getNext3Songs() {
@@ -163,17 +179,5 @@ class GlobalModalState extends ChangeNotifier {
       }
     }
     return nextPrevIndex;
-  }
-
-  void setLastSelectedCategory(MusicCategoryType category) {
-    _lastSelectedCategory = category;
-    notifyListeners();
-  }
-
-  void navigateToCategory(int delta) {
-    final nextCategory =
-        MusicCategoryType.getNextPrevCategory(delta, _lastSelectedCategory);
-    _lastSelectedCategory = nextCategory;
-    notifyListeners();
   }
 }

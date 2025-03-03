@@ -62,7 +62,9 @@ class ZuneDatabase {
     );
 
     batch.execute(ArtistModel.createModelScript());
+    batch.execute(GenreModel.createModelScript());
     batch.execute(AlbumModel.createModelScript());
+    batch.execute(AlbumGenreJunction.createModelScript());
     batch.execute(TrackModel.createModelScript());
     batch.execute(TrackImageModel.createModelScript());
     batch.execute(AlbumSummary.createModelScript());

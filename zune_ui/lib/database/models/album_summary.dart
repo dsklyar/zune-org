@@ -31,7 +31,7 @@ class AlbumSummary extends AlbumModel {
   final int total_duration;
   Uint8List? album_cover;
   Uint8List? album_illustration;
-  List<int> track_ids = [];
+  final List<int> track_ids;
 
   AlbumSummary({
     this.track_count = 0,

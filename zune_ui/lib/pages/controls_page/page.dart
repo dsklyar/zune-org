@@ -371,13 +371,7 @@ class _ControlsPageState extends State<ControlsPage>
   void playPauseSong() {
     final globalState = context.read<GlobalModalState>();
     _queueOverlayClosingEffect();
-
-    PlayPauseTrackAtPath(
-      action: globalState.isPlaying
-          ? PlayPauseRustActionEnum.pauseAction.value
-          : PlayPauseRustActionEnum.resumeAction.value,
-    ).sendSignalToRust();
-    globalState.updateIsPlaying(!globalState.isPlaying);
+    globalState.togglePlayPause();
   }
 
   @override
