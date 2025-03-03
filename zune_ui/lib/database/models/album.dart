@@ -18,7 +18,7 @@ class AlbumModelColumns extends BaseModelColumns {
 }
 
 class AlbumModel implements PlayableItem {
-  static String tableName = "AlbumModel";
+  static String tableName = "Albums";
   static const String defaultAlbum = "unknown album";
   static const AlbumModelColumns columns = AlbumModelColumns();
 
@@ -88,8 +88,7 @@ class AlbumModel implements PlayableItem {
             toCreate.toJson(),
           );
 
-    final albumModel = toCreate.copy(album_id: album_id);
-    return albumModel;
+    return toCreate.copy(album_id: album_id);
   }
 
   Map<String, Object?> toJson() => {

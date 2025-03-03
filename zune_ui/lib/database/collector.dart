@@ -20,9 +20,13 @@ class Collector {
 
   final Map<int, TrackSummary> _tracksMap = {};
   final Map<int, AlbumSummary> _albumMap = {};
+  final Map<int, ArtistSummary> _artistMap = {};
+  final Map<int, GenreSummary> _genreMap = {};
 
   List<TrackSummary> get allTracks => _tracksMap.values.toList();
   List<AlbumSummary> get allAlbums => _albumMap.values.toList();
+  List<ArtistSummary> get allArtists => _artistMap.values.toList();
+  List<GenreSummary> get allGenres => _genreMap.values.toList();
 
   final List<InteractiveItem> _newlyAddedItems = [];
   final List<InteractiveItem> _pinnedItems = [];
@@ -45,6 +49,12 @@ class Collector {
 
     assignAlbum(AlbumSummary album) => _albumMap[album.album_id] = album;
     (await AlbumSummary.readAll()).forEach(assignAlbum);
+
+    assignArtist(ArtistSummary artist) => _artistMap[artist.artist_id] = artist;
+    (await ArtistSummary.readAll()).forEach(assignArtist);
+
+    assignGenre(GenreSummary genre) => _genreMap[genre.genre_id] = genre;
+    (await GenreSummary.readAll()).forEach(assignGenre);
 
     pushToNewlyAddedItems(AlbumSummary album) => _newlyAddedItems.add(album);
     (await _getNewAddedAlbums(

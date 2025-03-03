@@ -26,6 +26,11 @@ class TrackSummary extends TrackModel {
     required super.path_to_filename,
   });
 
+  TrackSummary.fromJson(Map<String, Object?> json)
+      : album_name = json[columns.album_name] as String,
+        artist_name = json[columns.artist_name] as String,
+        super.fromJson(json);
+
   static Future<List<TrackSummary>> readAll({
     WhereClause? where,
   }) async {
@@ -56,9 +61,4 @@ class TrackSummary extends TrackModel {
         )
         .toList();
   }
-
-  TrackSummary.fromJson(Map<String, Object?> json)
-      : album_name = json[columns.album_name] as String,
-        artist_name = json[columns.artist_name] as String,
-        super.fromJson(json);
 }

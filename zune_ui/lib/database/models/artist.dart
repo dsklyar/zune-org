@@ -64,8 +64,7 @@ class ArtistModel implements PlayableItem {
             toCreate.toJson(),
           );
 
-    final artistModel = toCreate.copy(artist_id: artist_id);
-    return artistModel;
+    return toCreate.copy(artist_id: artist_id);
   }
 
   Map<String, Object?> toJson() => {
