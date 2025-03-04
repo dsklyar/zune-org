@@ -177,6 +177,10 @@ class _ViewSelectorState extends State<ViewSelector>
     switch (type) {
       case MusicCategoryType.albums:
         return const AlbumsGrid();
+      case MusicCategoryType.genres:
+        return const GenreGrid();
+      case MusicCategoryType.artists:
+        return const GenreGrid();
       default:
         return const EmptyCategory();
     }

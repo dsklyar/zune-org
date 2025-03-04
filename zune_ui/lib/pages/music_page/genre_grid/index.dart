@@ -1,19 +1,19 @@
-library view_selector_widget;
+library genre_grid_widget;
 
+import 'dart:collection';
+
+import 'package:flutter/material.dart' show Icon, Icons;
 import 'package:flutter/widgets.dart';
-import 'package:zune_ui/enums/index.dart';
 import 'package:provider/provider.dart';
-import 'package:zune_ui/pages/music_page/album_grid/index.dart';
-import 'package:zune_ui/pages/music_page/genre_grid/index.dart';
+import 'package:zune_ui/database/index.dart';
 import 'package:zune_ui/providers/global_state/index.dart';
 import 'package:zune_ui/widgets/common/index.dart';
 
 /// NOTE: Scoping imports behind parent, so that console log is exposed from Music Page
 import 'package:zune_ui/pages/music_page/index.dart' as parent;
 
-part "view_selector.dart";
-part "empty_category.dart";
-part "view_mount_transition.dart";
-part "view_slide_transition.dart";
+part "genre_grid.dart";
+part "genre_grid_tile.dart";
+part "font_styles.dart";
 
 final console = parent.console;

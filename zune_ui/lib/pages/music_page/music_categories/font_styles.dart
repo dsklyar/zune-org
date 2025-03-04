@@ -2,10 +2,10 @@ part of music_categories_widget;
 
 class Styles {
   static const TextStyle subtitleFont = TextStyle(
-    fontWeight: FontWeight.w300,
+    fontWeight: FontWeight.w400,
     fontFamily: 'Zegoe UI',
     color: Colors.gray,
-    fontSize: 28,
+    fontSize: 26,
     height: 1,
   );
 }

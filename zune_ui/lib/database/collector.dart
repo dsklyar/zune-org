@@ -39,6 +39,11 @@ class Collector {
   List<InteractiveItem> get pinnedItems => _pinnedItems;
   List<InteractiveItem> get recentlyPlayedItems => _recentlyPlayedItems;
 
+  UnmodifiableListView<AlbumSummary> getAlbumsFromIds(List<int> album_ids) =>
+      UnmodifiableListView(album_ids.map((id) => _albumMap[id]!).toList());
+  UnmodifiableListView<TrackSummary> getTracksFromIds(List<int> track_ids) =>
+      UnmodifiableListView(track_ids.map((id) => _tracksMap[id]!).toList());
+
   Collector({
     this.collectorConfiguration = const CollectorConfiguration(),
   });
