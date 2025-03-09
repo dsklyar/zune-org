@@ -87,7 +87,14 @@ class AlbumSummary extends AlbumModel {
             tracks.${TrackModel.columns.artist_id} = ai2.${TrackImageModel.columns.artist_id} AND
             ai2.${TrackImageModel.columns.image_type} = 18
           GROUP BY 
-              albums.${AlbumModel.columns.album_name}, artists.${ArtistModel.columns.artist_name};
+              albums.${AlbumModel.columns.album_name}, artists.${ArtistModel.columns.artist_name}
+          ORDER BY 
+            CASE
+              -- Prioritize the default/unknown album
+              WHEN albums.${AlbumModel.columns.album_name} = '${AlbumModel.defaultAlbum}' THEN 0
+              -- All other albums come after
+              ELSE 1 
+            END;
       ''');
   }
 
