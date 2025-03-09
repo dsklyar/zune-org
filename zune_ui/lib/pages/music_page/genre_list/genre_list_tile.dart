@@ -32,6 +32,21 @@ class GenreListTile extends StatelessWidget {
     );
   }
 
+  Widget _renderPlayButton() {
+    return const Align(
+      alignment: Alignment.centerLeft,
+      child: CircleWidget(
+        size: 36,
+        borderWidth: 2,
+        child: Icon(
+          Icons.play_arrow,
+          size: 28,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -46,18 +61,7 @@ class GenreListTile extends StatelessWidget {
           scrollable: Scrollable.of(context),
         ),
         children: [
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: CircleWidget(
-              size: 36,
-              borderWidth: 2,
-              child: Icon(
-                Icons.play_arrow,
-                size: 28,
-                color: Colors.white,
-              ),
-            ),
-          ),
+          _renderPlayButton(),
           Text(
             genre.genre_name.toUpperCase(),
             overflow: TextOverflow.ellipsis,
@@ -81,14 +85,6 @@ class ParallaxFlowDelegate extends FlowDelegate {
     required this.scrollable,
     required this.itemContext,
   }) : super(repaint: scrollable.position);
-
-  // @override
-  // BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) {
-  //   // Return tight width constraints for your background image child.
-  //   return BoxConstraints.tightFor(
-  //     width: constraints.maxWidth,
-  //   );
-  // }
 
   @override
   void paintChildren(FlowPaintingContext context) {
@@ -122,22 +118,37 @@ class ParallaxFlowDelegate extends FlowDelegate {
           double velocity,
           int signedDirection,
         })> map = {
+      /// Play Button
       0: (
         x: 0,
         y: 0,
-        velocity: 8,
-        signedDirection: -1,
-      ),
-      1: (
-        x: 36.0 + 8.0,
-        y: 4,
-        velocity: 1 * 4,
+
+        /// NOTE: Fine tuned based on "vibes" as  close as I see on Zune display.
+        ///       Velocity is largest here to show the "shift" effect when scrolling.
+        ///       Signed direct is positive so that when scrolling down the play button
+        ///       moves down more apparently.
+        velocity: 1 * 12,
         signedDirection: 1,
       ),
+
+      /// Genre Title
+      1: (
+        x: 36.0 + 8.0,
+        y: 12,
+
+        /// NOTE: Lowering velocity here to accentuate play button & album row
+        ///       parallax effect.
+        ///       Signed direction is negative so that when scrolling down the title
+        ///       moves up making more space between title nad the album row.
+        velocity: 2 * 2,
+        signedDirection: -1,
+      ),
+
+      /// Albums Row
       2: (
         x: 36.0 + 8.0,
-        y: 28,
-        velocity: 2 * 4,
+        y: 32,
+        velocity: 3 * 4,
         signedDirection: -1,
       ),
     };
