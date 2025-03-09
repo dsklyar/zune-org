@@ -1,9 +1,9 @@
-part of genre_grid_widget;
+part of genre_list_widget;
 
-class GenreGridTile extends StatelessWidget {
+class GenreListTile extends StatelessWidget {
   final GenreSummary genre;
 
-  const GenreGridTile({
+  const GenreListTile({
     super.key,
     required this.genre,
   });

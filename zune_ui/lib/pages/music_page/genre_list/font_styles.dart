@@ -1,4 +1,4 @@
-part of genre_grid_widget;
+part of genre_list_widget;
 
 class Styles {
   static const TextStyle genreTileFont = TextStyle(

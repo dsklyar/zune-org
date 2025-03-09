@@ -1,15 +1,15 @@
-part of genre_grid_widget;
+part of genre_list_widget;
 
-class GenreGrid extends StatefulWidget {
-  const GenreGrid({
+class GenreList extends StatefulWidget {
+  const GenreList({
     super.key,
   });
 
   @override
-  State<GenreGrid> createState() => _GenreGridState();
+  State<GenreList> createState() => _GenreListState();
 }
 
-class _GenreGridState extends State<GenreGrid> {
+class _GenreListState extends State<GenreList> {
   @override
   Widget build(BuildContext context) {
     return Selector<GlobalModalState, UnmodifiableListView<GenreSummary>>(
@@ -24,7 +24,7 @@ class _GenreGridState extends State<GenreGrid> {
           ),
           itemCount: genres.length,
           separatorBuilder: (context, index) => const SizedBox(height: 24),
-          itemBuilder: (context, index) => GenreGridTile(genre: genres[index]),
+          itemBuilder: (context, index) => GenreListTile(genre: genres[index]),
         );
       },
     );
