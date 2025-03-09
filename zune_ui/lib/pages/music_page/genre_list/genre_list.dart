@@ -17,11 +17,7 @@ class _GenreListState extends State<GenreList> {
       builder: (context, genres, child) {
         return ListView.separated(
           scrollDirection: Axis.vertical,
-          padding: const EdgeInsets.only(
-            left: 8,
-            right: 8,
-            bottom: 64,
-          ),
+          padding: parent.CATEGORY_PADDING,
           itemCount: genres.length,
           separatorBuilder: (context, index) => const SizedBox(height: 24),
           itemBuilder: (context, index) => GenreListTile(genre: genres[index]),

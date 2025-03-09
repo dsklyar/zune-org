@@ -25,7 +25,6 @@ enum ActiveControlEnum {
 
 class _ControlsPageState extends State<ControlsPage>
     with TickerProviderStateMixin {
-  // ignore: non_constant_identifier_names
   late final AnimationController _3dPlaneAnimationController;
 
   /// Property responsible for tracking if Overlay

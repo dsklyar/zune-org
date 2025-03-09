@@ -23,30 +23,11 @@ class GenreListTile extends StatelessWidget {
         final dataIsPresent = data != null && data.isNotEmpty;
         final readyToRender = connectionIsDone && dataIsPresent;
 
-        if (!readyToRender) {
-          return const SizedBox.shrink();
-        } else {
-          final albums = data;
-          return SizedBox(
-            height: 16,
-            child: ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                itemCount: albums.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 4),
-                itemBuilder: (context, index) {
-                  return SquareTile(
-                    size: 16,
-                    background: albums[index].album_cover,
-                  );
-                },
-              ),
-            ),
-          );
-        }
+        return readyToRender
+            ? GenreAlbumsRow(
+                albums: data,
+              )
+            : const SizedBox.shrink();
       },
     );
   }
