@@ -127,7 +127,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
         ///       Velocity is largest here to show the "shift" effect when scrolling.
         ///       Signed direct is positive so that when scrolling down the play button
         ///       moves down more apparently.
-        velocity: 1 * 12,
+        velocity: 1 * 8,
         signedDirection: 1,
       ),
 
