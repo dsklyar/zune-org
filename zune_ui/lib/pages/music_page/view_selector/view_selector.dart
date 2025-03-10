@@ -103,7 +103,7 @@ class _ViewSelectorState extends State<ViewSelector>
   }
 
   /// NOTE: Derives the offset for the  drag animation.
-  ///       Zune has a treshold of sorts to stagger animation,
+  ///       Zune has a threshold of sorts to stagger animation,
   ///       thus until absolute _xOffset reaches a screenSize.width * THRESHOLD_FOR_DRAG
   ///       the drag animation will not render.
   Offset getThresholdOffset() {
@@ -163,6 +163,13 @@ class _ViewSelectorState extends State<ViewSelector>
     /// NOTE: Performing this check in order to omit any GestureDetectors
     ///       captures where _xOffset was not changed by the Horizontal drag event.
     if (_xOffset.round() == 0) return;
+
+    /// NOTE: Performing this check to prevent category change when user
+    ///       drags the view back under threshold of the slide window.
+    ///       This way if user is fidgeting and returns view back, no category change
+    ///       is made.
+    final screenSize = MediaQuery.of(context).size;
+    if (_xOffset.abs() <= screenSize.width * THRESHOLD_FOR_DRAG) return;
 
     /// NOTE: Deriving delta change for the next selected music category via _xOffset.
     ///       [->]: If offset is positive, user is moving to the RIGHT so the next category
