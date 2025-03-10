@@ -1,4 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
 part of database;
 
 class GenreSummaryColumns extends GenreModelColumns {
@@ -45,7 +44,14 @@ class GenreSummary extends GenreModel {
         genres.${GenreModel.columns.genre_id} = albumGenres.${AlbumGenreJunction.columns.genre_id}
       ${where != null ? "WHERE ${columns.toSqlClause(where)}" : ''}
       GROUP BY 
-        genres.${GenreModel.columns.genre_name};
+        genres.${GenreModel.columns.genre_name}
+      ORDER BY 
+        CASE
+          -- Prioritize the default/unknown genre
+          WHEN genres.${GenreModel.columns.genre_name} = '${GenreModel.defaultGenre}' THEN 0
+          -- All other genres come after
+          ELSE 1 
+        END;
     ''');
 
     return result

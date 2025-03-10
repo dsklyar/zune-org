@@ -35,6 +35,8 @@ class GlobalModalState extends ChangeNotifier {
       UnmodifiableListView(_collector.newlyAddedItems);
   UnmodifiableListView<AlbumSummary> get allAlbums =>
       UnmodifiableListView(_collector.allAlbums);
+  UnmodifiableListView<GenreSummary> get allGenres =>
+      UnmodifiableListView(_collector.allGenres);
 
   GlobalModalState() {
     initializeStore();
@@ -163,6 +165,11 @@ class GlobalModalState extends ChangeNotifier {
       _currentSongList.slice(
           _currentSongIndex + 1, rem > 4 ? _currentSongIndex + 4 : absLen),
     );
+  }
+
+  Future<UnmodifiableListView<AlbumSummary>> getAlbumsFromIds(
+      List<int> album_ids) async {
+    return _collector.getAlbumsFromIds(album_ids);
   }
 
   int _getNextPrevTrackIndex(int delta) {

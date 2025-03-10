@@ -1,4 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
 part of database;
 
 class ArtistSummaryColumns extends ArtistModelColumns {
@@ -43,7 +42,14 @@ class ArtistSummary extends ArtistModel {
         artists.${ArtistModel.columns.artist_id} = albums.${AlbumModel.columns.artist_id}
       ${where != null ? "WHERE ${columns.toSqlClause(where)}" : ''}
       GROUP BY 
-        artists.${ArtistModel.columns.artist_name};
+        artists.${ArtistModel.columns.artist_name}
+      ORDER BY 
+        CASE
+          -- Prioritize the default/unknown artist
+          WHEN artists.${ArtistModel.columns.artist_name} = '${ArtistModel.defaultArtist}' THEN 0
+          -- All other artists come after
+          ELSE 1 
+        END;
     ''');
 
     return result

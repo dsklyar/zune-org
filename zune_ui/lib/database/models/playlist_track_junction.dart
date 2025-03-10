@@ -1,4 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
 part of database;
 
 class PlaylistTrackJunctionColumns extends BaseModelColumns {

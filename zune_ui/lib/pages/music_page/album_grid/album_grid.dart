@@ -83,11 +83,7 @@ class _AlbumsGridState extends State<AlbumsGrid> {
 
         /// NOTE: This should lazy load if there are many albums.
         return GridView.builder(
-          padding: const EdgeInsets.only(
-            bottom: TileUtility.regularTileWidth,
-            left: 8,
-            right: 8,
-          ),
+          padding: parent.CATEGORY_PADDING,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
             crossAxisSpacing: 20.0,
