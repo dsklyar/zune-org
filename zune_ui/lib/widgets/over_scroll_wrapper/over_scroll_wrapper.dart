@@ -1,4 +1,4 @@
-part of music_page;
+part of over_scroll_wrapper;
 
 const OVERSCROLL_THRESHOLD = 84;
 
@@ -33,7 +33,29 @@ class _OverScrollWrapperState extends State<OverScrollWrapper> {
   }
 
   void _handleOverscroll() {
-    final height = MediaQuery.of(context).size.height;
+    Future<void> animateScrollTo(
+        double initialJump, double finalPosition) async {
+      try {
+        _scrollController.jumpTo(initialJump);
+
+        /// TODO: This is a hack?
+        ///       Basically, in album grid, the widget get stuck outside of scroll
+        ///       when using mac touchpad and flicking fast up/down. It might be because
+        ///       of a complex grid builder in the album view, but not sure.
+        ///
+        ///       Adding this promise to execute animation to final scroll position after
+        ///       initial .jumpTo call.
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _scrollController.animateTo(
+            finalPosition,
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOut,
+          );
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     /// NOTE: Condition to check if over scroll event occurred
     ///       whe user pulling up at the top of the list
@@ -41,9 +63,12 @@ class _OverScrollWrapperState extends State<OverScrollWrapper> {
     ///       |    ⬆︎    |
     ///       |    ⬆︎    |
     if (_scrollController.offset < -OVERSCROLL_THRESHOLD) {
-      // Instead of .animateTo simply jump to 2 times the height of the container,
+      // Instead of .animateTo simply jump to 2 times the maxScrollExtent of the container,
       // so that the END list will slide from above.
-      _scrollController.jumpTo(height * 2);
+      animateScrollTo(
+        _scrollController.position.maxScrollExtent * 2,
+        _scrollController.position.maxScrollExtent,
+      );
 
       /// NOTE: Condition to check if over scroll event occurred
       ///       whe user pulling down at the bottom of the list
@@ -53,21 +78,27 @@ class _OverScrollWrapperState extends State<OverScrollWrapper> {
       ///        ----------
     } else if (_scrollController.offset >
         _scrollController.position.maxScrollExtent + OVERSCROLL_THRESHOLD) {
-      // Instead of .animateTo simply jump to negative of the height of the container,
+      // Instead of .animateTo simply jump to negative of the maxScrollExtent of the container,
       // so that the START list will slide from below.
-      _scrollController.jumpTo(-height);
+      animateScrollTo(
+        -_scrollController.position.maxScrollExtent,
+        0.0,
+      );
     }
+  }
+
+  bool _onNotification(ScrollNotification notification) {
+    // Capture if event is Overscroll driven by applyBoundaryConditions method below
+    if (notification is OverscrollNotification) {
+      _handleOverscroll();
+    }
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return NotificationListener<ScrollNotification>(
-      onNotification: (notification) {
-        if (notification is OverscrollNotification) {
-          _handleOverscroll();
-        }
-        return false;
-      },
+      onNotification: _onNotification,
       child: widget.builder(_scrollController, const OverScrollPhysics()),
     );
   }

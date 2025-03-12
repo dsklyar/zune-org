@@ -9,7 +9,8 @@ enum DebugComponent {
   searchIndexPage("Search Index Page"),
   database("SQLite Database"),
   globalState("Global State"),
-  timing("Timing Components");
+  timing("Timing Components"),
+  animation("Animation Components");
 
   const DebugComponent(this.name);
   final String name;

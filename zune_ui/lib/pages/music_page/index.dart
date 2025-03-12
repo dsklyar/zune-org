@@ -10,7 +10,6 @@ import 'package:zune_ui/widgets/custom/route_utils.dart';
 
 part "page.dart";
 part "animation_provider.dart";
-part "over_scroll_wrapper.dart";
 part "utils.dart";
 
 final console = DebugPrint().register(DebugComponent.musicPage);

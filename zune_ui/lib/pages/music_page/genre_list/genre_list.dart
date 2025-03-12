@@ -20,7 +20,7 @@ class _GenreListState extends State<GenreList> {
       /// NOTE: Using custom over scroll wrapper to allow user long swipe
       ///       across the scroll container to return to the top/bottom
       ///       of the list.
-      builder: (context, genres, child) => parent.OverScrollWrapper(
+      builder: (context, genres, child) => OverScrollWrapper(
         /// NOTE: Using ListView separated her in order to configure
         ///       spaced out list item vertical view.
         builder: (scrollController, scrollPhysics) => ListView.separated(

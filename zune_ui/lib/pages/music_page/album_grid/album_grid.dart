@@ -83,7 +83,7 @@ class _AlbumsGridState extends State<AlbumsGrid> {
 
         /// NOTE: Using ListView separated her in order to configure
         ///       spaced out list item vertical view.
-        return parent.OverScrollWrapper(
+        return OverScrollWrapper(
           /// NOTE: This should lazy load if there are many albums.
           builder: (scrollController, scrollPhysics) => GridView.builder(
             // Over scroll props:
