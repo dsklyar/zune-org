@@ -16,6 +16,5 @@ import 'package:zune_ui/pages/music_page/index.dart' as parent;
 part "genre_list.dart";
 part "genre_list_tile.dart";
 part "genre_albums_row.dart";
-part "font_styles.dart";
 
 final console = parent.console;

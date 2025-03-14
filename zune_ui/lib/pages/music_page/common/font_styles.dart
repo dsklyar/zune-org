@@ -1,7 +1,7 @@
-part of genre_list_widget;
+part of music_common_widgets;
 
 class Styles {
-  static const TextStyle genreTileFont = TextStyle(
+  static const TextStyle listTileFont = TextStyle(
     fontWeight: FontWeight.w700,
     color: Colors.white,
     letterSpacing: 1.2,

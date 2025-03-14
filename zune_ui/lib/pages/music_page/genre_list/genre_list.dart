@@ -14,9 +14,7 @@ class _GenreListState extends State<GenreList> {
   Widget build(BuildContext context) {
     return ListWrapper<UnmodifiableListView<GenreSummary>, GenreSummary>(
       selector: (state) => state.allGenres,
-      itemBuilder: (context, genre) => GenreListTile(
-        genre: genre,
-      ),
+      itemBuilder: (context, genre) => GenreListTile(genre: genre),
     );
   }
 }

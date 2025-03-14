@@ -14,9 +14,7 @@ class _ArtistListState extends State<ArtistList> {
   Widget build(BuildContext context) {
     return ListWrapper<UnmodifiableListView<ArtistSummary>, ArtistSummary>(
       selector: (state) => state.allArtists,
-      itemBuilder: (context, artist) => Text(
-        artist.artist_name,
-      ),
+      itemBuilder: (context, artist) => ArtistListTile(artist: artist),
     );
   }
 }
