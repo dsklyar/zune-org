@@ -187,7 +187,7 @@ class _ViewSelectorState extends State<ViewSelector>
       case MusicCategoryType.genres:
         return const GenreList();
       case MusicCategoryType.artists:
-        return const GenreList();
+        return const ArtistList();
       default:
         return const EmptyCategory();
     }
