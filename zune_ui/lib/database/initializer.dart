@@ -14,7 +14,9 @@ class Initializer {
     final artistMap = <String, ArtistModel>{};
     final albumMap = <String, AlbumModel>{};
     final genreMap = <String, GenreModel>{};
+    final trackMap = <String, TrackModel>{};
     final albumGenreMap = <String, AlbumGenreJunction>{};
+    final playlistMap = <String, PlaylistModel>{};
 
     try {
       await db.transaction(
@@ -120,7 +122,7 @@ class Initializer {
               }
             }
 
-            await TrackModel.create(
+            final track = await TrackModel.create(
               TrackModel(
                 album_id: album.album_id,
                 artist_id: artist.artist_id,
@@ -130,6 +132,7 @@ class Initializer {
               ),
               txn: txn,
             );
+            trackMap.putIfAbsent(track.track_id.toString(), () => track);
 
             for (var image in file.pictures) {
               await TrackImageModel.create(
@@ -142,6 +145,26 @@ class Initializer {
                 txn: txn,
               );
             }
+          }
+
+          final nowPlayingPlaylist = await PlaylistModel.create(
+            PlaylistModel(playlist_name: PlaylistModel.nowPlayingName),
+            txn: txn,
+          );
+          playlistMap.putIfAbsent(
+            nowPlayingPlaylist.playlist_name,
+            () => nowPlayingPlaylist,
+          );
+
+          for (var entry in trackMap.values) {
+            await PlaylistTrackJunction.create(
+              PlaylistTrackJunction(
+                playlist_id: nowPlayingPlaylist.playlist_id,
+                track_id: entry.track_id,
+                order: entry.track_id,
+              ),
+              txn: txn,
+            );
           }
         },
       );

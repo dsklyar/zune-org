@@ -39,6 +39,10 @@ class GlobalModalState extends ChangeNotifier {
       UnmodifiableListView(_collector.allGenres);
   UnmodifiableListView<ArtistSummary> get allArtists =>
       UnmodifiableListView(_collector.allArtists);
+  UnmodifiableListView<PlaylistSummary> get allPlaylists =>
+      UnmodifiableListView(_collector.allPlayLists);
+  UnmodifiableListView<TrackSummary> get allTracks =>
+      UnmodifiableListView(_collector.allTracks);
 
   GlobalModalState() {
     initializeStore();

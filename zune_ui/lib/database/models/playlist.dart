@@ -13,6 +13,7 @@ class PlaylistModelColumns extends BaseModelColumns {
 
 class PlaylistModel implements PlayableItem {
   static const String tableName = "Playlists";
+  static const String nowPlayingName = "now playing";
   static const PlaylistModelColumns columns = PlaylistModelColumns();
 
   final int playlist_id;

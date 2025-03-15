@@ -66,6 +66,15 @@ class ParallaxFlowDelegate extends FlowDelegate {
   }) : super(repaint: scrollable.position);
 
   @override
+  BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) {
+    /// NOTE: Adding this constraints override to allow text such as track name
+    ///       to overflow the width of the parent container.
+    return BoxConstraints.tightFor(
+      width: constraints.maxWidth * 2,
+    );
+  }
+
+  @override
   void paintChildren(FlowPaintingContext context) {
     // Determine the percent position of this list item within the
     // scrollable area.

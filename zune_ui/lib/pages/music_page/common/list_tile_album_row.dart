@@ -27,6 +27,7 @@ class ListTileAlbumRow extends StatelessWidget {
           itemBuilder: (context, index) => SquareTile(
             size: ROW_SIZE,
             background: albums[index].album_cover,
+            noBorder: albums[index].album_cover == null,
           ),
         ),
       ),

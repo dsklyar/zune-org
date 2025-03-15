@@ -8,4 +8,11 @@ class Styles {
     fontSize: 16,
     height: 1,
   );
+  static const TextStyle listSubtileFont = TextStyle(
+    fontWeight: FontWeight.w500,
+    color: Colors.gray,
+    letterSpacing: 1.2,
+    fontSize: 12,
+    height: 1,
+  );
 }

@@ -4,6 +4,7 @@ const LIST_GAP = 26.0;
 
 class ListWrapper<ItemList extends Iterable<Item>, Item>
     extends StatefulWidget {
+  final double listGap;
   final ItemList Function(ItemList items)? itemsReducer;
   final ItemList Function(GlobalModalState state) selector;
   final Widget Function(BuildContext context, Item item) itemBuilder;
@@ -11,6 +12,7 @@ class ListWrapper<ItemList extends Iterable<Item>, Item>
   const ListWrapper({
     super.key,
     this.itemsReducer,
+    this.listGap = LIST_GAP,
     required this.selector,
     required this.itemBuilder,
   });
@@ -34,6 +36,8 @@ class _ListWrapperState<ItemList extends Iterable<Item>, Item>
         final items =
             widget.itemsReducer != null ? widget.itemsReducer!(data) : data;
 
+        if (items.length == 0) return const EmptyCategory();
+
         return OverScrollWrapper(
           /// NOTE: Using ListView separated her in order to configure
           ///       spaced out list item vertical view.
@@ -45,8 +49,8 @@ class _ListWrapperState<ItemList extends Iterable<Item>, Item>
             scrollDirection: Axis.vertical,
             padding: parent.CATEGORY_PADDING,
             itemCount: items.length,
-            separatorBuilder: (context, index) => const SizedBox(
-              height: LIST_GAP,
+            separatorBuilder: (context, index) => SizedBox(
+              height: widget.listGap,
             ),
             itemBuilder: (context, index) =>
                 widget.itemBuilder(context, items.elementAt(index)),

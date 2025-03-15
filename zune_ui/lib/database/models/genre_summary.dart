@@ -20,10 +20,12 @@ class GenreSummary extends GenreModel {
   });
 
   GenreSummary.fromJson(Map<String, Object?> json)
-      : album_ids = (json[columns.album_ids] as String)
-            .split(",")
-            .map(int.parse)
-            .toList(),
+      : album_ids = json[columns.album_ids] == null
+            ? []
+            : (json[columns.album_ids] as String)
+                .split(",")
+                .map(int.parse)
+                .toList(),
         super.fromJson(json);
 
   static Future<List<GenreSummary>> readAll({
