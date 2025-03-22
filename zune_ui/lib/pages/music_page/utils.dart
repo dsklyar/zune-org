@@ -61,7 +61,7 @@ List<ItemGroup> generateItemGroups<Item, ItemGroup>(
   // "#" group key goes first and represents items starting with a number
   map.putIfAbsent("#", () => []);
 
-// Build a Linked Hash Map of a keys and their respective item groups
+  // Build a Linked Hash Map of a keys and their respective item groups
   for (final item in items) {
     final groupKey = groupKeyGenerator(item);
     if (map.containsKey(groupKey)) {
@@ -75,9 +75,9 @@ List<ItemGroup> generateItemGroups<Item, ItemGroup>(
   // TODO: Might not be actually correctly implemented...
   map.putIfAbsent(".", () => []);
 
-// Reduce the map to a Item Group where first entry is a group key configuration
-// and the rest in a group are the items under said group
-// e.g. all albums starting with letter "a"
+  // Reduce the map to a Item Group where first entry is a group key configuration
+  // and the rest in a group are the items under said group
+  // e.g. all albums starting with letter "a"
   final result = <ItemGroup>[];
   String? previousGroupKey;
   for (final entry in map.entries) {
