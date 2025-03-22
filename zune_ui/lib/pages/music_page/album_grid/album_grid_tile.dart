@@ -1,5 +1,7 @@
 part of album_grid_widget;
 
+typedef AlbumGridTileGroup = ({String? groupKey, AlbumSummary? album});
+
 // NOTE: Variables used to scale/translate album name in the parallax effect.
 const SCALE_VALUE = 3;
 const INVERSE_SCALE_VALUE = 1 / SCALE_VALUE;
@@ -7,7 +9,7 @@ const INVERSE_SCALE_VALUE = 1 / SCALE_VALUE;
 class AlbumsGridTile extends StatelessWidget {
   final GlobalKey _globalKey = GlobalKey();
 
-  final ({AlbumSummary? album, String? groupKey}) albumGroup;
+  final AlbumGridTileGroup albumGroup;
 
   AlbumsGridTile({
     super.key,

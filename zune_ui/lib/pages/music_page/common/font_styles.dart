@@ -5,14 +5,14 @@ class Styles {
     fontWeight: FontWeight.w700,
     color: Colors.white,
     letterSpacing: 1.2,
-    fontSize: 16,
+    fontSize: 18,
     height: 1,
   );
   static const TextStyle listSubtileFont = TextStyle(
     fontWeight: FontWeight.w500,
     color: Colors.gray,
     letterSpacing: 1.2,
-    fontSize: 12,
+    fontSize: 14,
     height: 1,
   );
 }

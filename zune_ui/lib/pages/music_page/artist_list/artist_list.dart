@@ -10,11 +10,22 @@ class ArtistList extends StatefulWidget {
 }
 
 class _ArtistListState extends State<ArtistList> {
+  List<ArtistListTileGroup> _generateArtistGroups(
+          List<ArtistSummary> artists) =>
+      parent.generateItemGroups<ArtistSummary, ArtistListTileGroup>(
+        artists,
+        (groupKey, item) => (groupKey: groupKey, artist: item),
+        (e) => parent.generateItemGroupKey(e.artist_name),
+      );
+
   @override
   Widget build(BuildContext context) {
-    return ListWrapper<UnmodifiableListView<ArtistSummary>, ArtistSummary>(
+    return ListWrapper<UnmodifiableListView<ArtistSummary>, ArtistSummary,
+        ArtistListTileGroup>(
       selector: (state) => state.allArtists,
-      itemBuilder: (context, artist) => ArtistListTile(artist: artist),
+      itemBuilder: (context, artistGroup) =>
+          ArtistListTile(artistGroup: artistGroup),
+      itemsReducer: _generateArtistGroups,
     );
   }
 }

@@ -12,7 +12,8 @@ class GenreList extends StatefulWidget {
 class _GenreListState extends State<GenreList> {
   @override
   Widget build(BuildContext context) {
-    return ListWrapper<UnmodifiableListView<GenreSummary>, GenreSummary>(
+    return ListWrapper<UnmodifiableListView<GenreSummary>, GenreSummary,
+        GenreSummary>(
       selector: (state) => state.allGenres,
       itemBuilder: (context, genre) => GenreListTile(genre: genre),
     );

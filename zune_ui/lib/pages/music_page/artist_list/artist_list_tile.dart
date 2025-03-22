@@ -1,5 +1,7 @@
 part of artist_list_widget;
 
+typedef ArtistListTileGroup = ({String? groupKey, ArtistSummary? artist});
+
 final Map<int, ParallaxConfiguration> parallaxConfig = {
   /// Play Button
   0: (
@@ -37,15 +39,28 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
 };
 
 class ArtistListTile extends StatelessWidget {
-  final ArtistSummary artist;
+  final ArtistListTileGroup artistGroup;
 
   const ArtistListTile({
     super.key,
-    required this.artist,
+    required this.artistGroup,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget generateGroupKeyTile(BuildContext context, String groupKey) {
+    /// NOTE: This provider exposes all of the overlays in the app.
+    final overlaysProvider = OverlaysProvider.of(context);
+    return SizedBox(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SearchIndexTile(
+          index: artistGroup.groupKey!,
+          onTap: () => overlaysProvider!.showOverlay(OverlayType.searchIndex),
+        ),
+      ),
+    );
+  }
+
+  Widget generateArtistTile(BuildContext context, ArtistSummary artist) {
     return ListItemWrapper<ArtistSummary>(
       data: artist,
       widgetConfigs: [
@@ -71,5 +86,14 @@ class ArtistListTile extends StatelessWidget {
         )
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return artistGroup.groupKey != null
+        ? generateGroupKeyTile(context, artistGroup.groupKey!)
+        : artistGroup.artist != null
+            ? generateArtistTile(context, artistGroup.artist!)
+            : const SizedBox.shrink();
   }
 }

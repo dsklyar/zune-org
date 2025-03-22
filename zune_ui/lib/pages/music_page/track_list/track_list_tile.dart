@@ -1,5 +1,7 @@
 part of track_list_widget;
 
+typedef TrackListTileGroup = ({String? groupKey, TrackSummary? track});
+
 final Map<int, ParallaxConfiguration> parallaxConfig = {
   // Track Title
   0: (
@@ -18,17 +20,31 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
 };
 
 class TrackListTile extends StatelessWidget {
-  final TrackSummary track;
+  final TrackListTileGroup trackGroup;
 
   const TrackListTile({
     super.key,
-    required this.track,
+    required this.trackGroup,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget generateGroupKeyTile(BuildContext context, String groupKey) {
+    /// NOTE: This provider exposes all of the overlays in the app.
+    final overlaysProvider = OverlaysProvider.of(context);
+    return SizedBox(
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SearchIndexTile(
+          index: trackGroup.groupKey!,
+          onTap: () => overlaysProvider!.showOverlay(OverlayType.searchIndex),
+        ),
+      ),
+    );
+  }
+
+  Widget generateTrackTile(BuildContext context, TrackSummary track) {
     return ListItemWrapper<TrackSummary>(
       data: track,
+      height: 32.0,
       widgetConfigs: [
         // Track Title
         (
@@ -54,5 +70,14 @@ class TrackListTile extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return trackGroup.groupKey != null
+        ? generateGroupKeyTile(context, trackGroup.groupKey!)
+        : trackGroup.track != null
+            ? generateTrackTile(context, trackGroup.track!)
+            : const SizedBox.shrink();
   }
 }

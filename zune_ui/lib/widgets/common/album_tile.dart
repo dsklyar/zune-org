@@ -15,7 +15,7 @@ class TextStyles {
   );
   static const TextStyle searchIndexTile = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 24,
+    fontSize: 26,
     height: 1,
   );
 }

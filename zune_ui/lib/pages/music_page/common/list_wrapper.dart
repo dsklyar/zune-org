@@ -2,12 +2,12 @@ part of music_common_widgets;
 
 const LIST_GAP = 26.0;
 
-class ListWrapper<ItemList extends Iterable<Item>, Item>
+class ListWrapper<ItemList extends Iterable<Item>, Item, RenderItem>
     extends StatefulWidget {
   final double listGap;
-  final ItemList Function(ItemList items)? itemsReducer;
+  final Iterable<RenderItem> Function(ItemList items)? itemsReducer;
   final ItemList Function(GlobalModalState state) selector;
-  final Widget Function(BuildContext context, Item item) itemBuilder;
+  final Widget Function(BuildContext context, RenderItem item) itemBuilder;
 
   const ListWrapper({
     super.key,
@@ -18,12 +18,12 @@ class ListWrapper<ItemList extends Iterable<Item>, Item>
   });
 
   @override
-  State<ListWrapper<ItemList, Item>> createState() =>
-      _ListWrapperState<ItemList, Item>();
+  State<ListWrapper<ItemList, Item, RenderItem>> createState() =>
+      _ListWrapperState<ItemList, Item, RenderItem>();
 }
 
-class _ListWrapperState<ItemList extends Iterable<Item>, Item>
-    extends State<ListWrapper<ItemList, Item>> {
+class _ListWrapperState<ItemList extends Iterable<Item>, Item, RenderItem>
+    extends State<ListWrapper<ItemList, Item, RenderItem>> {
   @override
   Widget build(BuildContext context) {
     return Selector<GlobalModalState, ItemList>(
@@ -33,10 +33,11 @@ class _ListWrapperState<ItemList extends Iterable<Item>, Item>
       ///       across the scroll container to return to the top/bottom
       ///       of the list.
       builder: (context, data, child) {
-        final items =
-            widget.itemsReducer != null ? widget.itemsReducer!(data) : data;
+        final items = widget.itemsReducer != null
+            ? widget.itemsReducer!(data)
+            : data as Iterable<RenderItem>;
 
-        if (items.length == 0) return const EmptyCategory();
+        if (items.isEmpty) return const EmptyCategory();
 
         return OverScrollWrapper(
           /// NOTE: Using ListView separated her in order to configure
@@ -52,8 +53,10 @@ class _ListWrapperState<ItemList extends Iterable<Item>, Item>
             separatorBuilder: (context, index) => SizedBox(
               height: widget.listGap,
             ),
-            itemBuilder: (context, index) =>
-                widget.itemBuilder(context, items.elementAt(index)),
+            itemBuilder: (context, index) => widget.itemBuilder(
+              context,
+              items.elementAt(index),
+            ),
           ),
         );
       },

@@ -12,7 +12,8 @@ class PlaylistList extends StatefulWidget {
 class _PlaylistListState extends State<PlaylistList> {
   @override
   Widget build(BuildContext context) {
-    return ListWrapper<UnmodifiableListView<PlaylistSummary>, PlaylistSummary>(
+    return ListWrapper<UnmodifiableListView<PlaylistSummary>, PlaylistSummary,
+        PlaylistSummary>(
       selector: (state) => state.allPlaylists,
       itemBuilder: (context, playlist) => PlaylistListTile(playlist: playlist),
     );
