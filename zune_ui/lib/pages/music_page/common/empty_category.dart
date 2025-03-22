@@ -1,4 +1,4 @@
-part of view_selector_widget;
+part of music_common_widgets;
 
 class EmptyCategory extends StatelessWidget {
   const EmptyCategory({

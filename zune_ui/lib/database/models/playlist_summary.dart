@@ -21,10 +21,12 @@ class PlaylistSummary extends PlaylistModel {
   });
 
   PlaylistSummary.fromJson(Map<String, Object?> json)
-      : track_ids = (json[columns.track_ids] as String)
-            .split(",")
-            .map(int.parse)
-            .toList(),
+      : track_ids = json[columns.track_ids] == null
+            ? []
+            : (json[columns.track_ids] as String)
+                .split(",")
+                .map(int.parse)
+                .toList(),
         super.fromJson(json);
 
   static Future<List<PlaylistSummary>> readAll({

@@ -1,4 +1,4 @@
-part of genre_list_widget;
+part of playlist_list_widget;
 
 final Map<int, ParallaxConfiguration> parallaxConfig = {
   /// Play Button
@@ -36,37 +36,40 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
   ),
 };
 
-class GenreListTile extends StatelessWidget {
-  final GenreSummary genre;
+class PlaylistListTile extends StatelessWidget {
+  final PlaylistSummary playlist;
 
-  const GenreListTile({
+  const PlaylistListTile({
     super.key,
-    required this.genre,
+    required this.playlist,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListItemWrapper<GenreSummary>(
-      data: genre,
+    return ListItemWrapper<PlaylistSummary>(
+      data: playlist,
       widgetConfigs: [
         // Play Button
         (
-          builder: (context, genre) => const ListTilePlayButton(),
+          builder: (context, Playlist) => const ListTilePlayButton(),
           parallaxConfig: parallaxConfig[0]!
         ),
-        // Genre Tile
+        // Playlist Tile
         (
-          builder: (context, genre) => Text(
-                genre.genre_name.toUpperCase(),
+          builder: (context, Playlist) => Text(
+                playlist.playlist_name.toUpperCase(),
                 overflow: TextOverflow.ellipsis,
                 style: Styles.listTileFont,
               ),
           parallaxConfig: parallaxConfig[1]!
         ),
-        // Genre Album Row
+        // Playlist Song Count Row
         (
-          builder: (context, genre) =>
-              LazyListTileAlbumRow(album_ids: genre.album_ids),
+          builder: (context, Playlist) => Text(
+                "${playlist.track_ids.length} songs".toUpperCase(),
+                overflow: TextOverflow.ellipsis,
+                style: Styles.listSubtileFont,
+              ),
           parallaxConfig: parallaxConfig[2]!
         )
       ],

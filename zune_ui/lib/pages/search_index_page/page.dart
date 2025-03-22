@@ -47,11 +47,6 @@ class _SearchIndexPageState extends State<SearchIndexPage>
     _triggerInitialAnimation();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   void _triggerInitialAnimation() {
     widget.parentController.animateTo(0.5).then(
           (_) => _triggerDebouncer(),

@@ -47,10 +47,12 @@ class AlbumSummary extends AlbumModel {
         total_duration = json[columns.total_duration] as int,
         album_cover = json[columns.album_cover] as Uint8List?,
         album_illustration = json[columns.album_illustration] as Uint8List?,
-        track_ids = (json[columns.track_ids] as String)
-            .split(",")
-            .map(int.parse)
-            .toList(),
+        track_ids = json[columns.track_ids] == null
+            ? []
+            : (json[columns.track_ids] as String)
+                .split(",")
+                .map(int.parse)
+                .toList(),
         super.fromJson(json);
 
   static String createModelScript() {

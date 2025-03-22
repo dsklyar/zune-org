@@ -15,7 +15,7 @@ class TextStyles {
   );
   static const TextStyle searchIndexTile = TextStyle(
     fontWeight: FontWeight.w500,
-    fontSize: 24,
+    fontSize: 26,
     height: 1,
   );
 }
@@ -119,6 +119,7 @@ class SquareTile extends StatelessWidget {
   final AlignmentGeometry? alignment;
   final TextStyle? textStyle;
   final bool? fillBackground;
+  final bool? noBorder;
   final double size;
 
   const SquareTile({
@@ -130,6 +131,7 @@ class SquareTile extends StatelessWidget {
     this.textStyle = TextStyles.albumTitle,
     // If true removes border and applies color
     this.fillBackground = false,
+    this.noBorder = false,
   });
 
   @override
@@ -152,7 +154,7 @@ class SquareTile extends StatelessWidget {
               color: fillBackground == true
                   ? Colors.white.withAlpha(50)
                   : Colors.black,
-              border: fillBackground == true
+              border: fillBackground == true || noBorder == true
                   ? null
                   : Border.all(
                       width: 1,
