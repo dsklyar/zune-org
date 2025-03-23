@@ -48,9 +48,10 @@ class _SearchIndexPageState extends State<SearchIndexPage>
   }
 
   void _triggerInitialAnimation() {
-    widget.parentController.animateTo(0.5).then(
-          (_) => _triggerDebouncer(),
-        );
+    // widget.parentController.animateTo(0.5).then(
+    //       (_) => _triggerDebouncer(),
+    //     );
+    widget.parentController.animateTo(0.5);
   }
 
   void _animateAutoClose() {
@@ -71,7 +72,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
 
   @override
   Widget build(BuildContext context) {
-    const indexKey = "#abcdefghijklmnoprstuvwxyz.";
+    const indexKey = " #abcdefghijklmnoprstuvwxyz.";
 
     return AnimatedBuilder(
       animation: _slideOutYOffsetAnimation,
@@ -79,37 +80,26 @@ class _SearchIndexPageState extends State<SearchIndexPage>
         offset: Offset(0, _slideOutYOffsetAnimation.value),
         child: GestureDetector(
           child: Container(
+            padding: const EdgeInsets.only(top: 8),
             color: Colors.black.withAlpha(250),
-            // padding: const EdgeInsets.only(
-            //     left: 12.0, right: 12.0, bottom: 12.0, top: 12),
-            child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: [
-                GestureDetector(
-                  // Account for container's padding when doing test detection
-                  behavior: HitTestBehavior.translucent,
-                  // onTap: () => widget.closeOverlayHandler(fastClose: true),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    width: 56,
-                    height: 56,
-                    child: Text(
+            child: GridView.builder(
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                childAspectRatio: 1,
+              ),
+              itemCount: indexKey.length,
+              itemBuilder: (context, index) => index == 0
+                  ? Text(
                       "exit".toUpperCase(),
                       style: Styles.exitLabel,
-                    ),
-                  ),
-                ),
-                ...indexKey
-                    .split("")
-                    .map(
-                      (index) => SearchIndexTile(
-                        index: index,
-                        onTap: () {},
-                      ),
                     )
-                    .toList(),
-              ],
+                  : SearchIndexTile(
+                      index: indexKey[index],
+                      onTap: () {},
+                    ),
             ),
           ),
         ),
