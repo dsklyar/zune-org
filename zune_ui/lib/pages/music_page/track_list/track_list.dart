@@ -12,7 +12,10 @@ class TrackList extends StatefulWidget {
 }
 
 class _TrackListState extends State<TrackList> {
-  List<TrackListTileGroup> _generateTrackGroups(List<TrackSummary> tracks) =>
+  List<TrackListTileGroup> _generateTrackGroups(
+    List<TrackSummary> tracks, {
+    ScrollController? scrollController,
+  }) =>
       parent.generateItemGroups<TrackSummary, TrackListTileGroup>(
         tracks,
         (groupKey, item) => (groupKey: groupKey, track: item),
@@ -27,7 +30,7 @@ class _TrackListState extends State<TrackList> {
       selector: (state) => state.allTracks,
       itemBuilder: (context, trackGroup) =>
           TrackListTile(trackGroup: trackGroup),
-      itemsReducer: _generateTrackGroups,
+      itemsMiddleware: _generateTrackGroups,
     );
   }
 }

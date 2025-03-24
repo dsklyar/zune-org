@@ -1,13 +1,18 @@
 part of search_index_page;
 
+typedef SearchIndexConfig = Map<String, Future<void> Function()>;
+
 class SearchIndexPage extends StatefulWidget {
   final AnimationController parentController;
   final void Function() closeOverlayHandler;
+
+  final SearchIndexConfig configuration;
 
   const SearchIndexPage({
     super.key,
     required this.closeOverlayHandler,
     required this.parentController,
+    required this.configuration,
   });
 
   @override
@@ -57,7 +62,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
   void _animateAutoClose() {
     // Start animation
     widget.parentController.forward(from: 0.5).then((_) {
-      widget.parentController.reset();
+      widget.closeOverlayHandler();
       // setState(() {
       //   // widget.parentController.reset();
       //   // _panelIsInUse = false;
@@ -68,6 +73,14 @@ class _SearchIndexPageState extends State<SearchIndexPage>
   void _triggerDebouncer() {
     /// NOTE: Abstraction to trigger bounce animation delayed by the debouncer
     _autoCloseDebouncer.call(() => _animateAutoClose());
+  }
+
+  void onSearchIndexTileTapHandler(String groupKey) {
+    if (widget.configuration.containsKey(groupKey)) {
+      final action = widget.configuration[groupKey]!;
+      _animateAutoClose();
+      action();
+    }
   }
 
   @override
@@ -98,7 +111,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
                     )
                   : SearchIndexTile(
                       index: indexKey[index],
-                      onTap: () {},
+                      onTap: () => onSearchIndexTileTapHandler(indexKey[index]),
                     ),
             ),
           ),

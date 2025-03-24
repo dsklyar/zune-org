@@ -45,18 +45,12 @@ String generateItemGroupKey(String itemName) {
   return groupKey;
 }
 
-/// NOTE: Method responsible for generating item alphabetical groups based on a string key.
-///       List<Item> items - List of items e.g. albums/genres
-///       ItemGroup Function(String? groupKey, Item? item) groupBuilder - Tuple group generator
-///        String Function(Item item) groupKeyGenerator - Group key generator
-List<ItemGroup> generateItemGroups<Item, ItemGroup>(
+LinkedHashMap<String, List<Item>> generateItemMap<Item>(
   List<Item> items,
-  ItemGroup Function(String? groupKey, Item? item) groupBuilder,
   String Function(Item item) groupKeyGenerator,
 ) {
-  if (items.isEmpty) return [];
-
   final LinkedHashMap<String, List<Item>> map = LinkedHashMap();
+  if (items.isEmpty) return map;
 
   // "#" group key goes first and represents items starting with a number
   map.putIfAbsent("#", () => []);
@@ -75,6 +69,15 @@ List<ItemGroup> generateItemGroups<Item, ItemGroup>(
   // TODO: Might not be actually correctly implemented...
   map.putIfAbsent(".", () => []);
 
+  return map;
+}
+
+List<ItemGroup> generateItemListFromMap<Item, ItemGroup>(
+  LinkedHashMap<String, List<Item>> map,
+  ItemGroup Function(String? groupKey, Item? item) groupBuilder,
+) {
+  if (map.isEmpty) return [];
+
   // Reduce the map to a Item Group where first entry is a group key configuration
   // and the rest in a group are the items under said group
   // e.g. all albums starting with letter "a"
@@ -92,4 +95,19 @@ List<ItemGroup> generateItemGroups<Item, ItemGroup>(
     }
   }
   return result;
+}
+
+/// NOTE: Method responsible for generating item alphabetical groups based on a string key.
+///       List<Item> items - List of items e.g. albums/genres
+///       ItemGroup Function(String? groupKey, Item? item) groupBuilder - Tuple group generator
+///        String Function(Item item) groupKeyGenerator - Group key generator
+List<ItemGroup> generateItemGroups<Item, ItemGroup>(
+  List<Item> items,
+  ItemGroup Function(String? groupKey, Item? item) groupBuilder,
+  String Function(Item item) groupKeyGenerator,
+) {
+  final LinkedHashMap<String, List<Item>> map =
+      generateItemMap(items, groupKeyGenerator);
+
+  return generateItemListFromMap(map, groupBuilder);
 }

@@ -4,6 +4,8 @@ import 'dart:collection';
 
 import 'package:flutter/widgets.dart';
 import 'package:zune_ui/database/index.dart';
+import 'package:zune_ui/pages/search_index_page/index.dart'
+    show SearchIndexConfig;
 import 'package:zune_ui/widgets/common/index.dart';
 import 'package:zune_ui/pages/overlays_page/index.dart';
 import 'package:zune_ui/pages/music_page/common/index.dart';
