@@ -1,6 +1,6 @@
 part of music_common_widgets;
 
-const LIST_GAP = 26.0;
+const DEFAULT_LIST_GAP = 26.0;
 
 class ListWrapper<ItemList extends Iterable<Item>, Item, RenderItem>
     extends StatefulWidget {
@@ -15,7 +15,7 @@ class ListWrapper<ItemList extends Iterable<Item>, Item, RenderItem>
   const ListWrapper({
     super.key,
     this.itemsMiddleware,
-    this.listGap = LIST_GAP,
+    this.listGap = DEFAULT_LIST_GAP,
     required this.selector,
     required this.itemBuilder,
   });

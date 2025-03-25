@@ -15,5 +15,6 @@ import 'package:zune_ui/pages/music_page/index.dart' as parent;
 
 part "artist_list.dart";
 part "artist_list_tile.dart";
+part "constants.dart";
 
 final console = parent.console;
