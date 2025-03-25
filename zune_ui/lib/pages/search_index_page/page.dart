@@ -111,6 +111,8 @@ class _SearchIndexPageState extends State<SearchIndexPage>
                     )
                   : SearchIndexTile(
                       index: indexKey[index],
+                      isDisabled:
+                          !widget.configuration.containsKey(indexKey[index]),
                       onTap: () => onSearchIndexTileTapHandler(indexKey[index]),
                     ),
             ),
