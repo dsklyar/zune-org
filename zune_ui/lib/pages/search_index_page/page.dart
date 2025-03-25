@@ -85,7 +85,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
 
   @override
   Widget build(BuildContext context) {
-    const indexKey = " #abcdefghijklmnoprstuvwxyz.";
+    const indexKey = " #abcdefghijklmnopqrstuvwxyz";
 
     return AnimatedBuilder(
       animation: _slideOutYOffsetAnimation,
