@@ -28,8 +28,6 @@ class _SearchIndexPageState extends State<SearchIndexPage>
     logger: console,
   );
 
-  // bool _panelIsInUse = false;
-
   @override
   void initState() {
     super.initState();
