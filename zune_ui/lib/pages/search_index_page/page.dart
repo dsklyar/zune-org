@@ -89,6 +89,10 @@ class _SearchIndexPageState extends State<SearchIndexPage>
   ///       and debounce the auto close animation.
   void _handleUnrelatedTap() => _animateAutoClose();
 
+  /// NOTE: This method is responsible for closing the search index page
+  ///       via force animation.
+  void _handleExitTap() => _animateAutoClose(forceAnimate: true);
+
   @override
   Widget build(BuildContext context) {
     const indexKey = " #abcdefghijklmnopqrstuvwxyz";
@@ -112,9 +116,12 @@ class _SearchIndexPageState extends State<SearchIndexPage>
               ),
               itemCount: indexKey.length,
               itemBuilder: (context, index) => index == 0
-                  ? Text(
-                      "exit".toUpperCase(),
-                      style: Styles.exitLabel,
+                  ? GestureDetector(
+                      onTap: _handleExitTap,
+                      child: Text(
+                        "exit".toUpperCase(),
+                        style: Styles.exitLabel,
+                      ),
                     )
                   : SearchIndexTile(
                       index: indexKey[index],
