@@ -42,7 +42,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
       ),
       TweenSequenceItem(
         tween: Tween<double>(begin: 0, end: -480)
-            .chain(CurveTween(curve: Curves.bounceOut)),
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 1,
       ),
     ]).animate(widget.parentController);
