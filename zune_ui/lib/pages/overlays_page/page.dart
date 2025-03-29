@@ -25,6 +25,8 @@ class _OverlaysPageState extends State<OverlaysPage>
   final OverlayPortalController _searchIndexPageOverlayController =
       OverlayPortalController();
 
+  SearchIndexConfig _searchIndexConfig = {};
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +37,7 @@ class _OverlaysPageState extends State<OverlaysPage>
     );
     _searchIndexPagAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 250),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -88,10 +90,15 @@ class _OverlaysPageState extends State<OverlaysPage>
     }
   }
 
+  void _setSearchTileConfig(SearchIndexConfig configuration) {
+    _searchIndexConfig = configuration;
+  }
+
   @override
   Widget build(BuildContext context) {
     return OverlaysProvider(
       showOverlay: _showOverlay,
+      setSearchTileConfig: _setSearchTileConfig,
       child: Stack(
         children: [
           OverlayPortal(
@@ -99,6 +106,7 @@ class _OverlaysPageState extends State<OverlaysPage>
             overlayChildBuilder: (context) => SearchIndexPage(
               closeOverlayHandler: _closeSearchIndexPageOverlay,
               parentController: _searchIndexPagAnimationController,
+              configuration: _searchIndexConfig,
             ),
           ),
           OverlayPortal(

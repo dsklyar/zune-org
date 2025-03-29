@@ -91,23 +91,31 @@ class TrackTile extends StatelessWidget {
 
 class SearchIndexTile extends StatelessWidget {
   final String index;
+  final bool isDisabled;
   final void Function() onTap;
 
   const SearchIndexTile({
     super.key,
+    this.isDisabled = false,
     required this.index,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SquareTile(
-        size: TileUtility.smallTileWidth,
-        alignment: Alignment.bottomRight,
-        textStyle: TextStyles.searchIndexTile,
-        text: index,
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: IgnorePointer(
+        ignoring: isDisabled,
+        child: GestureDetector(
+          onTap: onTap,
+          child: SquareTile(
+            size: TileUtility.smallTileWidth,
+            alignment: Alignment.bottomRight,
+            textStyle: TextStyles.searchIndexTile,
+            text: index,
+          ),
+        ),
       ),
     );
   }
@@ -158,7 +166,7 @@ class SquareTile extends StatelessWidget {
                   ? null
                   : Border.all(
                       width: 1,
-                      color: Colors.white.withAlpha(50),
+                      color: Colors.white.withAlpha(75),
                     ),
             )
           : null,

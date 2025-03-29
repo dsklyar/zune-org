@@ -8,10 +8,12 @@ enum OverlayType {
 
 class OverlaysProvider extends InheritedWidget {
   final void Function(OverlayType type) showOverlay;
+  final void Function(SearchIndexConfig configuration) setSearchTileConfig;
 
   const OverlaysProvider({
     Key? key,
     required this.showOverlay,
+    required this.setSearchTileConfig,
     required Widget child,
   }) : super(key: key, child: child);
 

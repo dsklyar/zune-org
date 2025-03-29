@@ -1,6 +1,10 @@
 part of over_scroll_wrapper;
 
-const OVERSCROLL_THRESHOLD = 84;
+/// TODO:
+///       Changing 84 to 168 threshold to prevent overscroll trigger
+///       during the search index animation to latter letter causing
+///       wrong positions.
+const OVERSCROLL_THRESHOLD = 168;
 
 class OverScrollWrapper extends StatefulWidget {
   final Widget Function(

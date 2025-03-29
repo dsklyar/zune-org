@@ -2,23 +2,6 @@ part of track_list_widget;
 
 typedef TrackListTileGroup = ({String? groupKey, TrackSummary? track});
 
-final Map<int, ParallaxConfiguration> parallaxConfig = {
-  // Track Title
-  0: (
-    x: 0,
-    y: 0,
-    velocity: 0,
-    signedDirection: 0,
-  ),
-  // Track Artist & Album Name
-  1: (
-    x: 0,
-    y: 20,
-    velocity: 0,
-    signedDirection: 0,
-  ),
-};
-
 class TrackListTile extends StatelessWidget {
   final TrackListTileGroup trackGroup;
 
@@ -44,7 +27,7 @@ class TrackListTile extends StatelessWidget {
   Widget generateTrackTile(BuildContext context, TrackSummary track) {
     return ListItemWrapper<TrackSummary>(
       data: track,
-      height: 32.0,
+      height: TRACK_LIST_TILE_SIZE,
       widgetConfigs: [
         // Track Title
         (
@@ -56,7 +39,7 @@ class TrackListTile extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-          parallaxConfig: parallaxConfig[0]!
+          parallaxConfig: TRACK_PARALLAX_CONFIG[0]!
         ),
         // Track Artist & Album Name
         (
@@ -66,7 +49,7 @@ class TrackListTile extends StatelessWidget {
                 overflow: TextOverflow.visible,
                 style: Styles.listSubtileFont,
               ),
-          parallaxConfig: parallaxConfig[1]!
+          parallaxConfig: TRACK_PARALLAX_CONFIG[1]!
         ),
       ],
     );

@@ -1,13 +1,18 @@
 part of search_index_page;
 
+typedef SearchIndexConfig = Map<String, Future<void> Function()>;
+
 class SearchIndexPage extends StatefulWidget {
   final AnimationController parentController;
   final void Function() closeOverlayHandler;
+
+  final SearchIndexConfig configuration;
 
   const SearchIndexPage({
     super.key,
     required this.closeOverlayHandler,
     required this.parentController,
+    required this.configuration,
   });
 
   @override
@@ -18,18 +23,14 @@ class _SearchIndexPageState extends State<SearchIndexPage>
     with SingleTickerProviderStateMixin {
   late final Animation<double> _slideOutYOffsetAnimation;
   final Debouncer _autoCloseDebouncer = Debouncer(
-    duration: const Duration(seconds: 2),
-    debugName: "auto-close-effect",
+    duration: const Duration(seconds: 5),
+    debugName: "search-index-auto-close-effect",
     logger: console,
   );
-
-  // bool _panelIsInUse = false;
 
   @override
   void initState() {
     super.initState();
-
-    // console.log("render me");
 
     _slideOutYOffsetAnimation = TweenSequence<double>([
       TweenSequenceItem(
@@ -39,7 +40,7 @@ class _SearchIndexPageState extends State<SearchIndexPage>
       ),
       TweenSequenceItem(
         tween: Tween<double>(begin: 0, end: -480)
-            .chain(CurveTween(curve: Curves.bounceOut)),
+            .chain(CurveTween(curve: Curves.easeOut)),
         weight: 1,
       ),
     ]).animate(widget.parentController);
@@ -47,69 +48,86 @@ class _SearchIndexPageState extends State<SearchIndexPage>
     _triggerInitialAnimation();
   }
 
-  void _triggerInitialAnimation() {
-    widget.parentController.animateTo(0.5).then(
-          (_) => _triggerDebouncer(),
-        );
+  @override
+  void dispose() {
+    _autoCloseDebouncer.cancel();
+    super.dispose();
   }
 
-  void _animateAutoClose() {
-    // Start animation
-    widget.parentController.forward(from: 0.5).then((_) {
-      widget.parentController.reset();
-      // setState(() {
-      //   // widget.parentController.reset();
-      //   // _panelIsInUse = false;
-      // });
-    });
+  void _triggerInitialAnimation() =>
+      widget.parentController.animateTo(0.5).then(
+            (_) => _animateAutoClose(),
+          );
+
+  void _animateAutoClose({bool forceAnimate = false}) {
+    // AutoClose animation dispatch callback
+    dispatch() => widget.parentController
+        .forward(from: 0.5)
+        .then((_) => widget.closeOverlayHandler());
+    // Skip debounce
+    if (forceAnimate) {
+      dispatch();
+    } else {
+      _autoCloseDebouncer.call(dispatch);
+    }
   }
 
-  void _triggerDebouncer() {
-    /// NOTE: Abstraction to trigger bounce animation delayed by the debouncer
-    _autoCloseDebouncer.call(() => _animateAutoClose());
+  /// NOTE: This method is responsible for executing the animate to
+  ///       callback if the groupKey is present in the configuration
+  ///       dictionary. If present, force execute the auto close animation
+  ///       and execute the callback.
+  void _onSearchIndexTileTapHandler(String groupKey) {
+    if (widget.configuration.containsKey(groupKey)) {
+      _animateAutoClose(forceAnimate: true);
+      widget.configuration[groupKey]!();
+    }
   }
+
+  /// NOTE: Capture taps which do not result into scroll animation
+  ///       and debounce the auto close animation.
+  void _handleUnrelatedTap() => _animateAutoClose();
+
+  /// NOTE: This method is responsible for closing the search index page
+  ///       via force animation.
+  void _handleExitTap() => _animateAutoClose(forceAnimate: true);
 
   @override
   Widget build(BuildContext context) {
-    const indexKey = "#abcdefghijklmnoprstuvwxyz.";
+    const indexKey = " #abcdefghijklmnopqrstuvwxyz";
 
     return AnimatedBuilder(
       animation: _slideOutYOffsetAnimation,
       builder: (context, child) => Transform.translate(
         offset: Offset(0, _slideOutYOffsetAnimation.value),
         child: GestureDetector(
+          onTap: _handleUnrelatedTap,
           child: Container(
+            padding: const EdgeInsets.only(top: 8),
             color: Colors.black.withAlpha(250),
-            // padding: const EdgeInsets.only(
-            //     left: 12.0, right: 12.0, bottom: 12.0, top: 12),
-            child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: [
-                GestureDetector(
-                  // Account for container's padding when doing test detection
-                  behavior: HitTestBehavior.translucent,
-                  // onTap: () => widget.closeOverlayHandler(fastClose: true),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    width: 56,
-                    height: 56,
-                    child: Text(
-                      "exit".toUpperCase(),
-                      style: Styles.exitLabel,
-                    ),
-                  ),
-                ),
-                ...indexKey
-                    .split("")
-                    .map(
-                      (index) => SearchIndexTile(
-                        index: index,
-                        onTap: () {},
+            child: GridView.builder(
+              padding: const EdgeInsets.all(8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                childAspectRatio: 1,
+              ),
+              itemCount: indexKey.length,
+              itemBuilder: (context, index) => index == 0
+                  ? GestureDetector(
+                      onTap: _handleExitTap,
+                      child: Text(
+                        "exit".toUpperCase(),
+                        style: Styles.exitLabel,
                       ),
                     )
-                    .toList(),
-              ],
+                  : SearchIndexTile(
+                      index: indexKey[index],
+                      isDisabled:
+                          !widget.configuration.containsKey(indexKey[index]),
+                      onTap: () =>
+                          _onSearchIndexTileTapHandler(indexKey[index]),
+                    ),
             ),
           ),
         ),
