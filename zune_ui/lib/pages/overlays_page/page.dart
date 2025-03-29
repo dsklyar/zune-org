@@ -37,7 +37,7 @@ class _OverlaysPageState extends State<OverlaysPage>
     );
     _searchIndexPagAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 250),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
