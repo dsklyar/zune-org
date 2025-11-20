@@ -22,6 +22,7 @@ class TextStyles {
 
 class TileUtility {
   static const double largeTileWidth = 160;
+  static const double mediumTileWidth = 120;
   static const double regularTileWidth = 78;
   static const double smallTileWidth = 56;
 }
