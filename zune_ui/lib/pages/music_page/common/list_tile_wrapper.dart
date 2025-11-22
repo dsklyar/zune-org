@@ -69,6 +69,9 @@ class ParallaxFlowDelegate extends FlowDelegate {
   BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) {
     /// NOTE: Adding this constraints override to allow text such as track name
     ///       to overflow the width of the parent container.
+    ///
+    ///       This could cause items rendered in parallax effect flow to
+    ///       be on the far right of the screen and not be visible.
     return BoxConstraints.tightFor(
       width: constraints.maxWidth * 2,
     );

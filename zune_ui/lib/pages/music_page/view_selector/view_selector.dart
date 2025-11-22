@@ -183,7 +183,8 @@ class _ViewSelectorState extends State<ViewSelector>
   Widget renderCategoryType(MusicCategoryType type) {
     switch (type) {
       case MusicCategoryType.albums:
-        return const AlbumsGrid();
+        // return const AlbumsGrid();
+        return const AlbumList();
       case MusicCategoryType.genres:
         return const GenreList();
       case MusicCategoryType.artists:

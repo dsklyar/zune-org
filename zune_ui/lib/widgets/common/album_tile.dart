@@ -22,7 +22,6 @@ class TextStyles {
 
 class TileUtility {
   static const double largeTileWidth = 160;
-  static const double mediumTileWidth = 120;
   static const double regularTileWidth = 78;
   static const double smallTileWidth = 56;
 }
@@ -124,6 +123,8 @@ class SearchIndexTile extends StatelessWidget {
 
 class SquareTile extends StatelessWidget {
   final String? text;
+  // NOTE: If child is provided, use it instead of text
+  final Widget? child;
   final Uint8List? background;
   final AlignmentGeometry? alignment;
   final TextStyle? textStyle;
@@ -135,6 +136,7 @@ class SquareTile extends StatelessWidget {
     super.key,
     required this.size,
     this.text,
+    this.child,
     this.background,
     this.alignment = Alignment.bottomLeft,
     this.textStyle = TextStyles.albumTitle,
@@ -180,16 +182,19 @@ class SquareTile extends StatelessWidget {
               cacheHeight: cacheSize,
               cacheWidth: cacheSize,
             ),
-          if (text != null)
+          if (text != null || child != null)
             Container(
               padding: const EdgeInsets.all(4.0),
+              // NOTE: If child is provided, use it instead of text
+              child: child ??
+                  Text(
+                    text!,
+                    style: textStyle,
 
-              /// NOTE: Zune only shows maximum of 3 lines from the title
-              child: Text(
-                text!,
-                style: textStyle,
-                maxLines: 3,
-              ),
+                    /// NOTE: Zune only shows maximum of 3 lines from the title
+
+                    maxLines: 3,
+                  ),
             )
         ],
       ),

@@ -16,32 +16,69 @@ class AlbumListTile extends StatelessWidget {
     return SizedBox(
       child: Align(
         alignment: Alignment.centerLeft,
-        child: SearchIndexTile(
-          index: albumGroup.groupKey!,
+        child: GestureDetector(
           onTap: () => overlaysProvider!.showOverlay(OverlayType.searchIndex),
+          child: SquareTile(
+            size: ALBUM_LIST_TILE_SIZE,
+            alignment: Alignment.bottomRight,
+            noBorder: true,
+            child: SquareTile(
+              size: TileUtility.smallTileWidth,
+              alignment: Alignment.bottomRight,
+              textStyle: Styles.searchTileFont,
+              text: albumGroup.groupKey!,
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget generateAlbumTile(BuildContext context, AlbumSummary album) {
-    final albumCover = album.album_cover;
-    final albumName = album.album_name;
-
-    return GestureDetector(
-      // key: _albumTileKey,
-      // onTap: onAlbumTapHandler,
-      child: Stack(
-        children: [
-          SquareTile(
-            size: TileUtility.mediumTileWidth,
-            alignment: Alignment.bottomRight,
-            textStyle: Styles.albumTileFont,
-            background: albumCover,
-            text: albumCover != null ? null : albumName.toUpperCase(),
-          ),
-        ],
-      ),
+    return ListItemWrapper<AlbumSummary>(
+      data: album,
+      height: ALBUM_LIST_TILE_SIZE,
+      widgetConfigs: [
+        // Album Cover
+        (
+          builder: (context, album) => Container(
+                alignment: Alignment.centerLeft,
+                child: SquareTile(
+                  size: ALBUM_LIST_TILE_SIZE,
+                  alignment: Alignment.bottomRight,
+                  textStyle: Styles.albumTileFont,
+                  background: album.album_cover,
+                  text: album.album_cover != null
+                      ? null
+                      : album.album_name.toUpperCase(),
+                ),
+              ),
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[0]!
+        ),
+        // Play Button
+        (
+          builder: (context, _) => const ListTilePlayButton(),
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[1]!
+        ),
+        // Albums Title
+        (
+          builder: (context, album) => Text(
+                album.album_name.toUpperCase(),
+                overflow: TextOverflow.ellipsis,
+                style: Styles.albumTitleFont,
+              ),
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[2]!
+        ),
+        // Albums Artist
+        (
+          builder: (context, album) => Text(
+                album.artist_name.toUpperCase(),
+                overflow: TextOverflow.ellipsis,
+                style: Styles.albumArtistFont,
+              ),
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[3]!
+        ),
+      ],
     );
   }
 

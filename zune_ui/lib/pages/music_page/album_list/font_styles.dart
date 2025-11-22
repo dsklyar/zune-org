@@ -12,4 +12,16 @@ class Styles {
     fontSize: 16,
     height: 1,
   );
+  static const TextStyle albumTitleFont = TextStyle(
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+    fontSize: 16,
+    height: 1,
+  );
+  static const TextStyle albumArtistFont = TextStyle(
+    fontWeight: FontWeight.w600,
+    color: Colors.gray,
+    fontSize: 12,
+    height: 1,
+  );
 }

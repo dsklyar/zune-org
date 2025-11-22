@@ -12,18 +12,18 @@ class AlbumList extends StatefulWidget {
 }
 
 class _AlbumListState extends State<AlbumList> {
-  void _onReturnTapHandler() {
-    console.log("Should go back to album Grid");
-    // final musicPlayerAnimationContext =
-    //     parent.MusicPlayerAnimationProvider.of(context);
+  // void _onReturnTapHandler() {
+  //   console.log("Should go back to album Grid");
+  //   final musicPlayerAnimationContext =
+  //       parent.MusicPlayerAnimationProvider.of(context);
 
-    // musicPlayerAnimationContext?.executeWith(() async {
-    //   if (context.mounted) {
-    //     // context.go(ApplicationRoute.home.route);
-    //     console.log("Should go back to album Grid");
-    //   }
-    // });
-  }
+  //   musicPlayerAnimationContext?.executeWith(() async {
+  //     if (context.mounted) {
+  //       // context.go(ApplicationRoute.home.route);
+  //       console.log("Should go back to album Grid");
+  //     }
+  //   });
+  // }
 
   /// NOTE: Album List view allows "jumping" to a specific album via
   ///       group keys rendered in the list.
@@ -57,7 +57,7 @@ class _AlbumListState extends State<AlbumList> {
       // Derive group collection & key heights to compute offsets needed for animation
       final groupCollectionHeight = entry.value.fold(
           offset, (acc, album) => acc + ALBUM_LIST_TILE_SIZE + ALBUM_LIST_GAP);
-      const groupKeyHeight = ALBUM_SEARCH_INDEX_TILE_SIZE + ALBUM_LIST_GAP;
+      const groupKeyHeight = ALBUM_LIST_TILE_SIZE + ALBUM_LIST_GAP;
 
       offset = groupCollectionHeight + groupKeyHeight;
     }
@@ -90,6 +90,7 @@ class _AlbumListState extends State<AlbumList> {
     return ListWrapper<UnmodifiableListView<AlbumSummary>, AlbumSummary,
         AlbumListTileGroup>(
       selector: (state) => state.allAlbums,
+      listGap: ALBUM_LIST_GAP,
       itemBuilder: (context, albumGroup) =>
           AlbumListTile(albumGroup: albumGroup),
       itemsMiddleware: _generateAlbumGroups,
