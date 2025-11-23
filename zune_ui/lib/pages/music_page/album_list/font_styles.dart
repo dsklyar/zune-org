@@ -24,4 +24,10 @@ class Styles {
     fontSize: 12,
     height: 1,
   );
+  static const TextStyle albumTrackFont = TextStyle(
+    fontWeight: FontWeight.w500,
+    color: Colors.gray,
+    fontSize: 8,
+    height: 1,
+  );
 }

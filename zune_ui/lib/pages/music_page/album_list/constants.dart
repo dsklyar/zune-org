@@ -41,15 +41,15 @@ const Map<int, ParallaxConfiguration> ALBUM_LIST_PARALLAX_CONFIG = {
   3: (
     x: ALBUM_LIST_TILE_SIZE + 16.0 /* Padding */,
     y: 20.0,
-    velocity: 2 * 6,
+    velocity: 2 * 4,
     signedDirection: -1,
   ),
 
   /// Albums Songs
   4: (
     x: ALBUM_LIST_TILE_SIZE + 16.0 /* Padding */,
-    y: 32.0,
-    velocity: 3 * 8,
+    y: 20.0 + 18.0,
+    velocity: 3 * 6,
     signedDirection: -1,
   ),
 };

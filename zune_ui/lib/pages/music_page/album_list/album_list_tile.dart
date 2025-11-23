@@ -78,6 +78,12 @@ class AlbumListTile extends StatelessWidget {
               ),
           parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[3]!
         ),
+        // Albums Songs
+        (
+          builder: (context, album) =>
+              LazyAlbumTracksList(track_ids: album.track_ids),
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[4]!
+        ),
       ],
     );
   }
