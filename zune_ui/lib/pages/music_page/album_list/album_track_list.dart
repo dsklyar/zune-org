@@ -21,7 +21,7 @@ class AlbumTracksList extends StatelessWidget {
           scrollDirection: Axis.vertical,
           itemCount: tracks.length,
           separatorBuilder: (context, index) => const SizedBox(
-            width: ROW_GAP,
+            height: ROW_GAP,
           ),
           itemBuilder: (context, index) => Text(
             /// NOTE: Zune has tracks in default case.
