@@ -12,6 +12,7 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
     ///       moves down more apparently.
     velocity: 1 * 8,
     signedDirection: 1,
+    constraints: null,
   ),
 
   /// Artist Title
@@ -25,6 +26,7 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
     ///       moves up making more space between title nad the album row.
     velocity: 2 * 2,
     signedDirection: -1,
+    constraints: null,
   ),
 
   /// Albums Row
@@ -33,6 +35,7 @@ final Map<int, ParallaxConfiguration> parallaxConfig = {
     y: 32,
     velocity: 3 * 4,
     signedDirection: -1,
+    constraints: null,
   ),
 };
 

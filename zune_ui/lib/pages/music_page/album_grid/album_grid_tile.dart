@@ -7,7 +7,8 @@ const SCALE_VALUE = 3;
 const INVERSE_SCALE_VALUE = 1 / SCALE_VALUE;
 
 class AlbumsGridTile extends StatelessWidget {
-  final GlobalKey _globalKey = GlobalKey();
+  final GlobalKey _transformedTextKey = GlobalKey();
+  final GlobalKey _albumTileKey = GlobalKey();
 
   final AlbumGridTileGroup albumGroup;
 
@@ -35,38 +36,54 @@ class AlbumsGridTile extends StatelessWidget {
     final albumCover = album.album_cover;
     final albumName = album.album_name;
 
-    return Stack(
-      children: [
-        SquareTile(
-          size: TileUtility.regularTileWidth,
-          alignment: Alignment.bottomRight,
-          textStyle: Styles.albumTileFont,
-          background: albumCover,
-          text: albumCover != null ? null : albumName.toUpperCase(),
-        ),
-        Transform(
-          transform: Matrix4.identity()
-            // Honestly this is best I could come up with.
-            ..scale(INVERSE_SCALE_VALUE)
-            // Computing with SCALE_VALUE * .95 to closely match spacing as in Zune UI
-            ..translate(TileUtility.regularTileWidth * SCALE_VALUE * .95,
-                TileUtility.regularTileWidth, 0.0),
-          child: OverflowBox(
-            alignment: Alignment.center,
-            maxHeight: TileUtility.regularTileWidth * SCALE_VALUE,
-            child: Flow(
-              delegate: ParallaxFlowDelegate(
-                scrollable: Scrollable.of(context),
-                itemContext: context,
-                itemKey: _globalKey,
+    onAlbumTapHandler() {
+      final renderBox =
+          _albumTileKey.currentContext?.findRenderObject() as RenderBox?;
+
+      // if (renderBox != null) {
+      //   final widgetPosition = renderBox.localToGlobal(Offset.zero);
+      //   context.go(ApplicationRoute.albums.route, extra: widgetPosition);
+      // }
+
+      //TBI: Implement album tap handler
+    }
+
+    return GestureDetector(
+      key: _albumTileKey,
+      onTap: onAlbumTapHandler,
+      child: Stack(
+        children: [
+          SquareTile(
+            size: TileUtility.regularTileWidth,
+            alignment: Alignment.bottomRight,
+            textStyle: Styles.albumTileFont,
+            background: albumCover,
+            text: albumCover != null ? null : albumName.toUpperCase(),
+          ),
+          Transform(
+            transform: Matrix4.identity()
+              // Honestly this is best I could come up with.
+              ..scale(INVERSE_SCALE_VALUE)
+              // Computing with SCALE_VALUE * .95 to closely match spacing as in Zune UI
+              ..translate(TileUtility.regularTileWidth * SCALE_VALUE * .95,
+                  TileUtility.regularTileWidth, 0.0),
+            child: OverflowBox(
+              alignment: Alignment.center,
+              maxHeight: TileUtility.regularTileWidth * SCALE_VALUE,
+              child: Flow(
+                delegate: ParallaxBackgroundFlowDelegate(
+                  scrollable: Scrollable.of(context),
+                  itemContext: context,
+                  itemKey: _transformedTextKey,
+                ),
+                children: [
+                  Text(key: _transformedTextKey, albumName),
+                ],
               ),
-              children: [
-                Text(key: _globalKey, albumName),
-              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -83,12 +100,12 @@ class AlbumsGridTile extends StatelessWidget {
 /// NOTE: This code is taken & slightly modified from:
 ///       -> https://docs.flutter.dev/cookbook/effects/parallax-scrolling
 ///
-class ParallaxFlowDelegate extends FlowDelegate {
+class ParallaxBackgroundFlowDelegate extends FlowDelegate {
   final ScrollableState scrollable;
   final BuildContext itemContext;
   final GlobalKey itemKey;
 
-  ParallaxFlowDelegate({
+  ParallaxBackgroundFlowDelegate({
     required this.scrollable,
     required this.itemContext,
     required this.itemKey,
@@ -160,7 +177,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
   }
 
   @override
-  bool shouldRepaint(ParallaxFlowDelegate oldDelegate) {
+  bool shouldRepaint(ParallaxBackgroundFlowDelegate oldDelegate) {
     return scrollable != oldDelegate.scrollable ||
         itemContext != oldDelegate.itemContext ||
         itemKey != oldDelegate.itemKey;

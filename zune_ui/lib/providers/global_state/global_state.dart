@@ -173,9 +173,16 @@ class GlobalModalState extends ChangeNotifier {
     );
   }
 
+  /// NOTE: Used to get albums from ids for lazy loading.
   Future<UnmodifiableListView<AlbumSummary>> getAlbumsFromIds(
       List<int> album_ids) async {
     return _collector.getAlbumsFromIds(album_ids);
+  }
+
+  /// NOTE: Used to get tracks from ids for lazy loading.
+  Future<UnmodifiableListView<TrackSummary>> getTracksFromIds(
+      List<int> track_ids) async {
+    return _collector.getTracksFromIds(track_ids);
   }
 
   int _getNextPrevTrackIndex(int delta) {

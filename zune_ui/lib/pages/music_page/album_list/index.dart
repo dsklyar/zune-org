@@ -1,0 +1,26 @@
+library album_list_widget;
+
+import 'dart:collection';
+
+import 'package:flutter/widgets.dart';
+import 'package:zune_ui/database/index.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:zune_ui/pages/music_page/common/index.dart';
+import 'package:zune_ui/pages/overlays_page/index.dart';
+import 'package:zune_ui/pages/search_index_page/index.dart';
+import 'package:zune_ui/providers/global_state/index.dart';
+import 'package:zune_ui/widgets/common/index.dart';
+import 'package:zune_ui/utilities/index.dart';
+
+/// NOTE: Scoping imports behind parent, so that console log & utils is exposed from Music Page
+import 'package:zune_ui/pages/music_page/index.dart' as parent;
+import 'package:zune_ui/widgets/custom/route_utils.dart';
+
+part "album_list.dart";
+part "album_list_tile.dart";
+part "album_track_list.dart";
+part "font_styles.dart";
+part "constants.dart";
+
+final console = parent.console;

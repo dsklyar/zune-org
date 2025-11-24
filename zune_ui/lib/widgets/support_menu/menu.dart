@@ -12,7 +12,7 @@ class SupportMenu extends StatelessWidget {
     onItemClickHandler(GlobalModalState state) => (InteractiveItem item) {
           if (item is AlbumSummary) {
             state.updateCurrentlyPlaying(item);
-            context.go(ApplicationRoute.player.route);
+            context.push(ApplicationRoute.player.route);
           }
         };
 
@@ -39,7 +39,7 @@ class SupportMenu extends StatelessWidget {
                     album: state.currentlyPlaying?.album,
                     isPlaying: state.isPlaying,
                     onClickHandler: (item) =>
-                        context.go(ApplicationRoute.player.route),
+                        context.push(ApplicationRoute.player.route),
                   );
                 },
               ),

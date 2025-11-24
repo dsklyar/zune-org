@@ -70,6 +70,7 @@ class _ArtistListState extends State<ArtistList> {
       (e) => parent.generateItemGroupKey(e.artist_name),
     );
 
+    // Generate search index configuration needed for "jumping" to a specific artist via group keys
     _generateSearchIndexConfiguration(scrollController, artistGroupMap);
 
     return parent.generateItemListFromMap(

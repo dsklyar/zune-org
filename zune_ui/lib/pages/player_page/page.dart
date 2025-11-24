@@ -43,7 +43,12 @@ class _PlayerPageState extends State<PlayerPage> with TickerProviderStateMixin {
 
   void onBackClick() {
     _controller.forward().then((_) {
-      context.go(ApplicationRoute.home.route);
+      if (context.canPop()) {
+        context.pop();
+      } else {
+        // Fallback to home if there's no navigation history
+        context.go(ApplicationRoute.home.route);
+      }
     });
   }
 

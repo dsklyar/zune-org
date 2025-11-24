@@ -11,6 +11,7 @@ final Map<int, ParallaxConfiguration> TRACK_PARALLAX_CONFIG = {
     y: 0,
     velocity: 0,
     signedDirection: 0,
+    constraints: null,
   ),
   // Track Artist & Album Name
   1: (
@@ -18,5 +19,6 @@ final Map<int, ParallaxConfiguration> TRACK_PARALLAX_CONFIG = {
     y: 20,
     velocity: 0,
     signedDirection: 0,
+    constraints: null,
   ),
 };

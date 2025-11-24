@@ -6,6 +6,7 @@ import 'package:zune_ui/pages/overlays_page/index.dart';
 import 'package:zune_ui/pages/player_page/index.dart';
 import 'package:zune_ui/providers/global_state/index.dart';
 import 'package:zune_ui/providers/scroll_state/scroll_state.dart';
+import 'package:zune_ui/providers/animation_provider/index.dart';
 import 'package:zune_ui/pages/home_page/page.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:go_router/go_router.dart';
@@ -90,23 +91,25 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: initialSize.width,
-      height: initialSize.height,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          WidgetsApp.router(
-            debugShowCheckedModeBanner: false,
-            routerConfig: _router,
-            color: const Color.fromARGB(255, 0, 0, 0),
-            textStyle: const TextStyle(
-              // Classic Zune Font :)
-              fontFamily: 'Zegoe UI',
+    return MusicPlayerAnimationProvider(
+      child: SizedBox(
+        width: initialSize.width,
+        height: initialSize.height,
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            WidgetsApp.router(
+              debugShowCheckedModeBanner: false,
+              routerConfig: _router,
+              color: const Color.fromARGB(255, 0, 0, 0),
+              textStyle: const TextStyle(
+                // Classic Zune Font :)
+                fontFamily: 'Zegoe UI',
+              ),
             ),
-          ),
-          WindowBar(router: _router),
-        ],
+            WindowBar(router: _router),
+          ],
+        ),
       ),
     );
   }
