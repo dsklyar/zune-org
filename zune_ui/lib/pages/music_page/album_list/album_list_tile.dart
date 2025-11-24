@@ -113,7 +113,8 @@ class AlbumListTile extends StatelessWidget {
                     child: SquareTile(
                       size: ALBUM_LIST_TILE_SIZE,
                       alignment: Alignment.bottomRight,
-                      textStyle: Styles.albumTileFont,
+                      textStyle: Styles.searchTileFont
+                          .copyWith(fontWeight: FontWeight.w100),
                       background: album.album_cover,
                       text: album.album_cover != null
                           ? null
