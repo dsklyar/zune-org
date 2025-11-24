@@ -120,20 +120,28 @@ class AlbumListTile extends StatelessWidget {
       widgetConfigs: [
         // Album Cover
         (
-          builder: (context, album) => Container(
-                // NOTE: This is to ensure the album cover is centered vertically.
-                alignment: Alignment.centerLeft,
-                child: SquareTile(
-                  size: ALBUM_LIST_TILE_SIZE,
-                  alignment: Alignment.bottomRight,
-                  textStyle: Styles.albumTileFont,
-                  background: album.album_cover,
-                  text: album.album_cover != null
-                      ? null
-                      : album.album_name.toUpperCase(),
+          builder: (context, album) => Consumer<GlobalModalState>(
+                builder: (context, state, child) => GestureDetector(
+                  onTap: () {
+                    state.updateCurrentlyPlaying(album);
+                    context.push(ApplicationRoute.player.route);
+                  },
+                  child: Container(
+                    // NOTE: This is to ensure the album cover is centered vertically.
+                    alignment: Alignment.centerLeft,
+                    child: SquareTile(
+                      size: ALBUM_LIST_TILE_SIZE,
+                      alignment: Alignment.bottomRight,
+                      textStyle: Styles.albumTileFont,
+                      background: album.album_cover,
+                      text: album.album_cover != null
+                          ? null
+                          : album.album_name.toUpperCase(),
+                    ),
+                  ),
                 ),
               ),
-          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[0]!
+          parallaxConfig: ALBUM_LIST_PARALLAX_CONFIG[0]!,
         ),
         // Play Button
         (
