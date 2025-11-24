@@ -6,6 +6,9 @@ const ALBUM_LIST_GAP = 10.0;
 ///       it should show at most 3 albums including with the group key tile.
 const ALBUM_LIST_TILE_SIZE = 128.0;
 
+/// NOTE: Remaining width is the width of the album list tile minus the album cover size and padding.
+const REMAINING_WIDTH = 272.0 - ALBUM_LIST_TILE_SIZE - 16.0;
+
 const Map<int, ParallaxConfiguration> ALBUM_LIST_PARALLAX_CONFIG = {
   /// Album Cover
   0: (
@@ -14,6 +17,7 @@ const Map<int, ParallaxConfiguration> ALBUM_LIST_PARALLAX_CONFIG = {
 
     velocity: 2 * 2,
     signedDirection: -1,
+    constraints: null,
   ),
 
   /// Play Button
@@ -27,6 +31,7 @@ const Map<int, ParallaxConfiguration> ALBUM_LIST_PARALLAX_CONFIG = {
     ///       moves down more apparently.
     velocity: 1 * 8,
     signedDirection: 1,
+    constraints: null,
   ),
 
   /// Albums Title
@@ -35,21 +40,29 @@ const Map<int, ParallaxConfiguration> ALBUM_LIST_PARALLAX_CONFIG = {
     y: 0,
     velocity: 1 * 4,
     signedDirection: -1,
+
+    /// NOTE: Adding this constraints override to allow text such as album title
+    ///       to overflow the width of the parent container.
+    ///       If constraints are not provided, set the width to the remaining width
+    ///       of the album list tile.
+    constraints: BoxConstraints.tightFor(width: REMAINING_WIDTH),
   ),
 
   /// Albums Artist
   3: (
     x: ALBUM_LIST_TILE_SIZE + 16.0 /* Padding */,
-    y: 20.0,
+    y: 16.0 /* Font size for album name */ + 4.0 /* Padding */,
     velocity: 2 * 4,
     signedDirection: -1,
+    constraints: null,
   ),
 
   /// Albums Songs
   4: (
     x: ALBUM_LIST_TILE_SIZE + 16.0 /* Padding */,
-    y: 20.0 + 18.0,
+    y: 16.0 /* Font size for album name */ + 4.0 /* Padding */ + 18.0,
     velocity: 3 * 6,
     signedDirection: -1,
+    constraints: null,
   ),
 };

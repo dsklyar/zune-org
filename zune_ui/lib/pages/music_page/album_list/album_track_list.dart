@@ -1,6 +1,7 @@
 part of album_list_widget;
 
-const ROW_SIZE = 80.0;
+/// NOTE: Added this value based on "vibes" as close as I see on Zune display.
+const ROW_SIZE = 70.0;
 const ROW_GAP = 4.0;
 
 class AlbumTracksList extends StatelessWidget {

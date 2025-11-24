@@ -71,7 +71,7 @@ class AlbumsGridTile extends StatelessWidget {
               alignment: Alignment.center,
               maxHeight: TileUtility.regularTileWidth * SCALE_VALUE,
               child: Flow(
-                delegate: ParallaxFlowDelegate(
+                delegate: ParallaxBackgroundFlowDelegate(
                   scrollable: Scrollable.of(context),
                   itemContext: context,
                   itemKey: _transformedTextKey,
@@ -100,12 +100,12 @@ class AlbumsGridTile extends StatelessWidget {
 /// NOTE: This code is taken & slightly modified from:
 ///       -> https://docs.flutter.dev/cookbook/effects/parallax-scrolling
 ///
-class ParallaxFlowDelegate extends FlowDelegate {
+class ParallaxBackgroundFlowDelegate extends FlowDelegate {
   final ScrollableState scrollable;
   final BuildContext itemContext;
   final GlobalKey itemKey;
 
-  ParallaxFlowDelegate({
+  ParallaxBackgroundFlowDelegate({
     required this.scrollable,
     required this.itemContext,
     required this.itemKey,
@@ -177,7 +177,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
   }
 
   @override
-  bool shouldRepaint(ParallaxFlowDelegate oldDelegate) {
+  bool shouldRepaint(ParallaxBackgroundFlowDelegate oldDelegate) {
     return scrollable != oldDelegate.scrollable ||
         itemContext != oldDelegate.itemContext ||
         itemKey != oldDelegate.itemKey;

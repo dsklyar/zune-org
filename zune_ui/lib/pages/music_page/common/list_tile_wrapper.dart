@@ -7,6 +7,7 @@ typedef ParallaxConfiguration = ({
   double y,
   double velocity,
   int signedDirection,
+  BoxConstraints? constraints,
 });
 
 typedef WidgetConfig<Item> = ({
@@ -35,7 +36,7 @@ class ListItemWrapper<Item> extends StatelessWidget {
         /// NOTE: Need to remove clipping here because the play button
         ///       during translation inside the Flow
         clipBehavior: Clip.none,
-        delegate: ParallaxFlowDelegate(
+        delegate: ParallaxListFlowDelegate(
           itemContext: context,
           scrollable: Scrollable.of(context),
           configuration: widgetConfigs
@@ -54,12 +55,12 @@ class ListItemWrapper<Item> extends StatelessWidget {
 /// NOTE: This code is taken & slightly modified from:
 ///       -> https://docs.flutter.dev/cookbook/effects/parallax-scrolling
 ///
-class ParallaxFlowDelegate extends FlowDelegate {
+class ParallaxListFlowDelegate extends FlowDelegate {
   final BuildContext itemContext;
   final ScrollableState scrollable;
   final Map<int, ParallaxConfiguration> configuration;
 
-  ParallaxFlowDelegate({
+  ParallaxListFlowDelegate({
     required this.scrollable,
     required this.itemContext,
     required this.configuration,
@@ -67,14 +68,16 @@ class ParallaxFlowDelegate extends FlowDelegate {
 
   @override
   BoxConstraints getConstraintsForChild(int i, BoxConstraints constraints) {
-    /// NOTE: Adding this constraints override to allow text such as track name
+    /// NOTE: If the constraints are provided, use them.
+    ///       Adding this constraints override to allow text such as track name
     ///       to overflow the width of the parent container.
     ///
-    ///       This could cause items rendered in parallax effect flow to
-    ///       be on the far right of the screen and not be visible.
-    return BoxConstraints.tightFor(
-      width: constraints.maxWidth * 2,
-    );
+    ///       If constraints are not provided, set the width to 2x the parent's width
+    ///       to allow text such as track name to overflow the width of the parent container.
+    return configuration[i]?.constraints ??
+        BoxConstraints.tightFor(
+          width: constraints.maxWidth * 2,
+        );
   }
 
   @override
@@ -118,7 +121,7 @@ class ParallaxFlowDelegate extends FlowDelegate {
   }
 
   @override
-  bool shouldRepaint(ParallaxFlowDelegate oldDelegate) {
+  bool shouldRepaint(ParallaxListFlowDelegate oldDelegate) {
     return scrollable != oldDelegate.scrollable ||
         itemContext != oldDelegate.itemContext;
   }
