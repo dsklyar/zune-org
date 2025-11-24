@@ -9,9 +9,9 @@ import 'package:zune_ui/pages/music_page/view_selector/index.dart';
 import 'package:zune_ui/widgets/common/index.dart';
 import 'package:zune_ui/widgets/custom/debug_print.dart';
 import 'package:zune_ui/widgets/custom/route_utils.dart';
+import 'package:zune_ui/providers/animation_provider/index.dart';
 
 part "page.dart";
-part "animation_provider.dart";
 part "utils.dart";
 
 final console = DebugPrint().register(DebugComponent.musicPage);

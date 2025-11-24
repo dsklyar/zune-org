@@ -63,11 +63,9 @@ class MusicPageWrapped extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MusicPlayerAnimationProvider(
-      child: MusicPage(
-        size: size,
-        startingOffset: startingOffset,
-      ),
+    return MusicPage(
+      size: size,
+      startingOffset: startingOffset,
     );
   }
 }

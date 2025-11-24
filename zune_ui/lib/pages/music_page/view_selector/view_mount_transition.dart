@@ -91,15 +91,15 @@ class _ViewMountTransitionState extends State<ViewMountTransition>
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         final musicPlayerAnimationContext =
-            parent.MusicPlayerAnimationProvider.of(context);
+            MusicPlayerAnimationProvider.of(context);
 
         musicPlayerAnimationContext?.register(
-          parent.EventType.unmountEvent,
+          EventType.unmountEvent,
           () async {
             /// NOTE: This logic is responsible for performing unmounting animation.
-            ///       First check if the widget is not yet disposed in order to reverse
-            ///       _controller and update the animation type to be mount.
-            if (!_isDisposed) {
+            ///       First check if the widget is not yet disposed and still mounted
+            ///       in order to reverse _controller and update the animation type to be mount.
+            if (!_isDisposed && mounted) {
               setState(() {
                 _forceUnmountAnimation = true;
               });

@@ -11,6 +11,7 @@ class MusicCategoriesWrapper extends StatefulWidget {
 
 class _MusicCategoriesWrapperState extends State<MusicCategoriesWrapper>
     with SingleTickerProviderStateMixin {
+  bool _isDisposed = false;
   late final AnimationController _controller;
 
   late final Animation<double> _opacityAnimation;
@@ -73,6 +74,10 @@ class _MusicCategoriesWrapperState extends State<MusicCategoriesWrapper>
 
   @override
   void dispose() {
+    /// NOTE: Setting _isDisposed to true before controller is disposed
+    ///       so that resource is still valid before running registered
+    ///       animation sequence below.
+    _isDisposed = true;
     _controller.dispose();
     super.dispose();
   }
@@ -81,11 +86,17 @@ class _MusicCategoriesWrapperState extends State<MusicCategoriesWrapper>
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         final musicPlayerAnimationContext =
-            parent.MusicPlayerAnimationProvider.of(context);
+            MusicPlayerAnimationProvider.of(context);
 
         musicPlayerAnimationContext?.register(
-          parent.EventType.unmountEvent,
-          _controller.reverse,
+          EventType.unmountEvent,
+          () async {
+            /// NOTE: Check if the widget is not yet disposed before
+            ///       attempting to reverse the animation controller.
+            if (!_isDisposed && mounted) {
+              await _controller.reverse();
+            }
+          },
         );
       },
     );
