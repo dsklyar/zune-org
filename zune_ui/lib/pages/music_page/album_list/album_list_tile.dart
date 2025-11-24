@@ -55,26 +55,7 @@ class AlbumListTile extends StatelessWidget {
   ///
   ///       Basically, the album title pushes down on artist name which is not wrapping
   ///       and the artist name is pushed down accordingly.
-  static ParallaxConfiguration regenerateYOffsetForAlbumArtist(
-      bool isWrapping, ParallaxConfiguration config) {
-    return (
-      x: config.x,
-      y: isWrapping
-          ? config.y + Styles.albumTitleFont.fontSize!.toDouble()
-          : config.y,
-      velocity: config.velocity,
-      signedDirection: config.signedDirection,
-      constraints: config.constraints,
-    );
-  }
-
-  /// NOTE: Because the album title can sometimes wrap, need to regenerate the y offset
-  ///       for the album songs to ensure it is positioned correctly following
-  ///       the zune experience.
-  ///
-  ///       Basically, the album title pushes down on artist name which is not wrapping
-  ///       and the songs list is pushed down accordingly.
-  static ParallaxConfiguration regenerateYOffsetForAlbumSongs(
+  static ParallaxConfiguration adjustYOffsetForWrapping(
       bool isWrapping, ParallaxConfiguration config) {
     return (
       x: config.x,
@@ -166,7 +147,7 @@ class AlbumListTile extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: Styles.albumArtistFont,
               ),
-          parallaxConfig: regenerateYOffsetForAlbumArtist(
+          parallaxConfig: adjustYOffsetForWrapping(
             isAlbumNameWrapping,
             ALBUM_LIST_PARALLAX_CONFIG[3]!,
           )
@@ -175,7 +156,7 @@ class AlbumListTile extends StatelessWidget {
         (
           builder: (context, album) =>
               LazyAlbumTracksList(track_ids: album.track_ids),
-          parallaxConfig: regenerateYOffsetForAlbumSongs(
+          parallaxConfig: adjustYOffsetForWrapping(
             isAlbumNameWrapping,
             ALBUM_LIST_PARALLAX_CONFIG[4]!,
           )
